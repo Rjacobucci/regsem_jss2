@@ -670,39 +670,123 @@ was replicated 200 times. The results are displayed in Table *
 \section{Discussion}\label{discussion}
 
 This paper provides an introduction to the \pkg{regsem} package,
-outlining the mathematical details of the regularized SEM method and the
-usage of the package itself.
+outlining the mathematical details of the regularized structural
+equation modeling (RegSEM; Jacobucci, Grimm, and McArdle 2016) method
+and the usage of the package itself. RegSEM allows the use of
+regularization while keeping the structural equation model intact,
+adding penalization directly into the estimation of the model. The
+application of RegSEM was detailed using two example models: a latent
+growth curve model with 20 predictors of both the latent intercept and
+slope, along with a factor analysis with one latent factor. With the
+latent growth curve model, the small parameter to sample size ratio
+resulted in a larger number of false positives in using maximum
+likelihood estimation. In both the simulated example and the small
+simulation, the different types of regularization in \pkg{regsem}
+demonstrated better false positive and negative rates in comparison to
+maxiumum likelihood across sample sizes.
 
-\subsection{Future Directions}\label{future-directions}
+Broadly speaking, there is a growing amount of research into the
+integration between data mining methods and latent variable models.
+Specifically, beyond regularized SEM, this has taken form of item
+response theory and regularization (Sun et al. 2016), pairing both
+structural equation models with decision trees (Brandmaier et al. 2013),
+exploratory psychological network analaysis (e.g. Epskamp, Rhemtulla,
+and Borsboom 2016), along with many others. The amount of pairing
+between methods that have generally been housed in separate camps will
+only increase into the future. This type of research will be facilitated
+by the general upsurge in the creation of open source software that
+gives users a general framework to test models. This was the motivation
+behind creating the \pkg{regsem} package in that users can estimate
+models ranging from simple factor analysis models, to latent
+longitudinal models with few to many time points, and finally to models
+with a large number of latent and observed variables. The use of
+regularization allows for the estimation of much larger structural
+equation models than before. Specifically, given that latent variables,
+as discussed in this article, are more commonly used in the social and
+behavioral sciences, sample sizes are generally not large. To estimate
+large models with sample sizes invites increasing amounts of bias, and
+as demonstrated with the simulated data in this paper, regularization
+can be used to reduce the complexity of the model, decreasing both the
+bias and variance.
 
-\subsection{Limitations}\label{limitations}
-
-With highly constrained structural equation models, achieving
+With highly constrained structural equation models, achieving model
 convergence can be particularly problematic in using \pkg{regsem}. For
-instance, with the latent change score model (cite jack), Bayesian
-regularization methods have less difficulty in reaching convergence
-across chains (cite chapter). With the advent of additional sparsity
-inducing priors, along with new forms of software such as STAN (cite
-stan), for some models it may be more appropriate to use these Bayesian
-regularization methods over their frequentist counterparts.
+instance, with the latent change score model (McArdle and Hamagami
+2001), Bayesian regularization methods have less difficulty in reaching
+convergence across chains (Jacobucci and Grimm 2017). With the recent
+advent of additional sparsity inducing priors, along with new forms of
+software such as STAN (Carpenter et al. 2016), for some models it may be
+more appropriate to use these Bayesian regularization methods over their
+frequentist counterparts. Particularly with structural equation models,
+although some research exists (Feng, Wu, and Song 2017), much more is
+warranted.
 
-\subsection*{Conclusion}\label{conclusion}
-\addcontentsline{toc}{subsection}{Conclusion}
+Future research with \pkg{regsem} should focus on a number of avenues.
+One is comparing the different forms of regularization, delineating
+which method may best best in which circumstances. Additionally, as
+structural equation models become larger, with the advent of much larger
+datasets, speed will become a principal concern. Although 40 penalties
+in the models tested above can be run in a matter of seconds on a
+standard laptop, larger models can take much longer. To handle this,
+future implementation with \pkg{regsem} will test the inclusion of
+different types of optimization, specifically testing whether
+computation of the Hessian (or approximate Hessian) can reduce the
+number of optimization steps.
+
+\subsection{Conclusion}\label{conclusion}
+
+This paper provided a brief overview on the use of the \pkg{regsem}
+package as an implementation of regularized structural equation model.
+Because structural equation modeling encompasses a wide array of latent
+variable models, the \pkg{regsem} package was created as a general
+package for including different forms of regularization into a host of
+latent variable models. Future updates to \pkg{regsem} will focus on
+decreasing the computational time of large latent variable models in
+order to provide an avenue of testing for researchers collecting larger
+and larger datasets. RegSEM is a method that operates at all ends of the
+data size spectrum: allowing for a reduction in complexity when the
+sample size is small, along with dimension reduction in the presence of
+large data (both \(N\) and \(P\)).
+
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
 
 \hypertarget{refs}{}
+\hypertarget{ref-brandmaier2013}{}
+Brandmaier, Andreas M., Timo von Oertzen, John J. McArdle, and Ulman
+Lindenberger. 2013. ``Structural Equation Model Trees.''
+\emph{Psychological Methods} 18 (1): 71--86.
+
 \hypertarget{ref-browne2001}{}
 Browne, Michael W. 2001. ``An Overview of Analytic Rotation in
 Exploratory Factor Analysis.'' \emph{Multivariate Behavioral Research}
 36 (1). Taylor \& Francis: 111--50.
 
+\hypertarget{ref-carpenter2016stan}{}
+Carpenter, Bob, Andrew Gelman, Matt Hoffman, Daniel Lee, Ben Goodrich,
+Michael Betancourt, Michael A Brubaker, Jiqiang Guo, Peter Li, and Allen
+Riddell. 2016. ``Stan: A Probabilistic Programming Language.''
+\emph{Journal of Statistical Software} 20.
+
 \hypertarget{ref-donoho1995noising}{}
 Donoho, David L. 1995. ``De-Noising by Soft-Thresholding.'' \emph{IEEE
 Transactions on Information Theory} 41 (3). IEEE: 613--27.
+
+\hypertarget{ref-epskamp2016generalized}{}
+Epskamp, Sacha, Mijke Rhemtulla, and Denny Borsboom. 2016. ``Generalized
+Network Psychometrics: Combining Network and Latent Variable Models.''
+\emph{ArXiv Preprint ArXiv:1605.09288}.
 
 \hypertarget{ref-fan2001variable}{}
 Fan, Jianqing, and Runze Li. 2001. ``Variable Selection via Nonconcave
 Penalized Likelihood and Its Oracle Properties.'' \emph{Journal of the
 American Statistical Association} 96 (456). Taylor \& Francis: 1348--60.
+
+\hypertarget{ref-feng2017bayesian}{}
+Feng, Xiang-Nan, Hao-Tian Wu, and Xin-Yuan Song. 2017. ``Bayesian
+Regularized Multivariate Generalized Latent Variable Models.''
+\emph{Structural Equation Modeling: A Multidisciplinary Journal}. Taylor
+\& Francis, 1--18.
 
 \hypertarget{ref-hastie2015statistical}{}
 Hastie, Trevor, Robert Tibshirani, and Martin Wainwright. 2015.
@@ -750,6 +834,11 @@ Variable Structural Equation Modeling.'' \emph{Contemporary
 Psychometrics: A Festschrift for Roderick P. McDonald}. Erlbaum. Mahwah,
 NJ, 225--73.
 
+\hypertarget{ref-mcardle2001latent}{}
+McArdle, John J, and Fumiaki Hamagami. 2001. ``Latent Difference Score
+Structural Models for Linear Dynamic Analyses with Incomplete
+Longitudinal Data.'' American Psychological Association.
+
 \hypertarget{ref-meinshausen2007relaxed}{}
 Meinshausen, Nicolai. 2007. ``Relaxed Lasso.'' \emph{Computational
 Statistics \& Data Analysis} 52 (1). Elsevier: 374--93.
@@ -773,6 +862,12 @@ Statistics: 461--64.
 Steiger, James H, and John C Lind. 1980. ``Statistically Based Tests for
 the Number of Common Factors.'' In \emph{Annual Meeting of the
 Psychometric Society, Iowa City, Ia}. Vol. 758.
+
+\hypertarget{ref-sun2016latent}{}
+Sun, Jianan, Yunxiao Chen, Jingchen Liu, Zhiliang Ying, and Tao Xin.
+2016. ``Latent Variable Selection for Multidimensional Item Response
+Theory Models via L\_ \(\{\)1\(\}\) Regularization.''
+\emph{Psychometrika} 81 (4). Springer: 921--39.
 
 \hypertarget{ref-thurstone1937}{}
 Thurstone, L. L. 1935. \emph{The Vectors of Mind}. Chicago, IL:
