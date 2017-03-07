@@ -211,7 +211,9 @@ F_{alasso} = F_{ML} + \lambda \| \theta_{ML}^{-1} * \theta_{pen} \|_{1}
 $$
 \noindent
 with, following the same form for the lasso, the soft-thresholding update is:
+
 [\\]: ftp://ftp.stat.math.ethz.ch/Teaching/buhlmann/advanced-comput-statist/notes1.pdf
+
 $$
 S(\theta_{j})= sign(\theta_{j})(|\theta_{j}|-\frac{\lambda}{2|\theta_{j}|})_{+}
 $$
@@ -320,6 +322,21 @@ Instead of examining the \code{out.reg[[1]]} output matrix of parameter estimate
 plot_cv(out.reg,pars=1:9)
 ```
 
+After a final model (penalty) is chosen, user's have the option either just use the output from \code{cv_regsem()}, or the final model can be re-run with either \code{regsem()} or \code{multi_optim()} to attain additional information. In the model above, the best fitting penalty, according to the BIC, is $\lambda=0$. However, for demonstration purposes, we can choose a penalty of 0.2. With this, the model is re-run with \code{regsem()}
+
+```{r, message=FALSE, warning=FALSE}
+mod.out <- regsem(out, type="lasso", pars_pen=c(1:9),lambda=0.2)
+#summary(mod.out)
+```
+
+Note that the arguments used above correspond to the same arguments in \code{multi_optim()}. However, \code{multi_optim()} has additional optional arguments corresponding to the number or random starts to try. Additional fit indices can be attained through the \code{fit_indices()} function. 
+
+```{r}
+fit_indices(mod.out)
+```
+\noindent
+These same fit measures can be accessed through \code{cv_regsem}, through changing the defaults with the \code{fit.ret=c("rmsea","BIC")} argument. Finally, instead of assessing these fit indices on the same sample that the models were run on, a holdout dataset could be used. This can be done two ways: either with \code{cv_regsem(...,fit.ret2="test")} or with \code{fit_indices(model,CV=TRUE,CovMat=)} and specifying the name of the holdout covariance matrix. 
+
 # Comparison
 
 
@@ -328,9 +345,9 @@ To compare the different types of penalties in \pkg{regsem}, we return to the th
 ```{r,eval=FALSE}
 mod1 <- "
 i =~ 1*x1 + 1*x2 + 1*x3 + 1*x4
-s =~ x1 + 1*x2 + 2*x3 + 3*x4
-i ~ c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8+ c9+ c10
-s ~ c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8+ c9+ c10
+s =~ 0*x1 + 1*x2 + 2*x3 + 3*x4
+i ~ c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10
+s ~ c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10
 "
 lav.growth <- growth(mod1,dat,fixed.x=T)
 ```
@@ -368,7 +385,7 @@ dat <- simulateData(sim.mod,model.type="growth",sample.nobs=80,seed=1234)
 
 mod1 <- "
 i =~ 1*x1 + 1*x2 + 1*x3 + 1*x4
-s =~ x1 + 1*x2 + 2*x3 + 3*x4
+s =~ 0*x1 + 1*x2 + 2*x3 + 3*x4
 i ~ c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8+ c9+ c10
 s ~ c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8+ c9+ c10
 "
@@ -428,40 +445,40 @@ xtable(best.pars)
 
 
 \begin{table}[ht]
-	\centering
-	\begin{tabular}{rrrrrr}
-		\hline
-		& ML & lasso & alasso & SCAD & MCP \\ 
-		\hline
-		c1 -$>$ i & 0.17 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c2 -$>$ i & -0.04 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c3 -$>$ i & 0.01 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c4 -$>$ i & 0.06 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c5 -$>$ i & 0.20 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c6 -$>$ i & -0.52* & 0.00 & 0.00 & 0.00 & -0.24 \\ 
-		c7 -$>$ i & 0.20 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c8 -$>$ i & -0.18 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c9 -$>$ i & 0.03 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c10 -$>$ i & -0.12 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c1 -$>$ s & 1.47* & 1.44 & 1.60 & 1.62 & 1.61 \\ 
-		c2 -$>$ s & 0.32* & 0.20 & 0.29 & 0.35 & 0.34 \\ 
-		c3 -$>$ s & 0.21 & 0.10 & 0.00 & 0.00 & 0.00 \\ 
-		c4 -$>$ s & -0.07 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c5 -$>$ s & -0.25 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c6 -$>$ s & 0.37* & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c7 -$>$ s & -0.21 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c8 -$>$ s & 0.27* & 0.04 & 0.00 & 0.00 & 0.00 \\ 
-		c9 -$>$ s & -0.09 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		c10 -$>$ s & 0.18 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
-		BIC & 3530.61 & 3484.27 & 3475.40 & 3474.85 & 3476.96 \\ 
-		\hline
-	\end{tabular}
+\centering
+\begin{tabular}{rrrrrr}
+  \hline
+ & ML & lasso & alasso & SCAD & MCP \\ 
+  \hline
+c1 -$>$ i & 0.92* & 0.72 & 0.91 & 0.94 & 0.92 \\ 
+  c2 -$>$ i & 0.07 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
+  c3 -$>$ i & 0.10 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
+  c4 -$>$ i & 0.07 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
+  c5 -$>$ i & 0.04 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
+  c6 -$>$ i & -0.25 & 0.00 & 0.00 & 0.00 & -0.19 \\ 
+  c7 -$>$ i & 0.11 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
+  c8 -$>$ i & -0.13 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
+  c9 -$>$ i & -0.03 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
+  c10 -$>$ i & 0.09 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
+  c1 -$>$ s & 1.18* & 1.09 & 1.22 & 1.24 & 1.24 \\ 
+  c2 -$>$ s & 0.29* & 0.19 & 0.28 & 0.35 & 0.35 \\ 
+  c3 -$>$ s & 0.18 & 0.09 & 0.00 & 0.00 & 0.00 \\ 
+  c4 -$>$ s & -0.08 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
+  c5 -$>$ s & -0.18 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
+  c6 -$>$ s & 0.25* & 0.00 & 0.00 & 0.00 & 0.00 \\ 
+  c7 -$>$ s & -0.18 & -0.04 & 0.00 & 0.00 & 0.00 \\ 
+  c8 -$>$ s & 0.26* & 0.10 & 0.00 & 0.00 & 0.00 \\ 
+  c9 -$>$ s & -0.06 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
+  c10 -$>$ s & 0.08 & 0.00 & 0.00 & 0.00 & 0.00 \\ 
+  BIC & 3465.28 & 3427.46 & 3415.05 & 3414.38 & 3417.20 \\ 
+   \hline
+\end{tabular}
 \caption{Parameter estimates for the final models across five estimation methods. Note that * represent significant parameters at p < .05 for maximum likelihood estimation.}
 \end{table}
 
-While every regularization method erroneously set both simulated true intercept effects as zero (as in maximum likelihood, which accounts for these errors), both the adaptive lasso and SCAD correctly identified every true zero effect. The lasso and MCP mistakenly identified one false effect each. As expected given the small ratio between number of estimated parameters and sample size, maximum likelihood mistakenly identified 3 false effects as significant. 
+While every regularization method erroneously set both simulated true intercept effects as zero (as in maximum likelihood, which accounts for these errors), both the adaptive lasso and SCAD correctly identified every true zero effect. The lasso identified two false effects while the MCP mistakenly identified one. Additionally, the lasso estimation of the true effects was attentuated in comparison to the other regularization methods. This is in line with previous research (cite), necessitating the use of a two-step relaxed lasso method [@meinshausen2007relaxed, see @jacobucci2016regularized] As expected given the small ratio between number of estimated parameters and sample size, maximum likelihood mistakenly identified 3 false effects as significant. 
 
-To compare the performance of each penalization method further, particularly in the presence of small number of parameters to sample size ratios, a small scale simulation study was conducted. The same model and effects was kept, but the sample size was varied to include 80, 200, and 1000 to demonstrate how maximum likelihood estimation of effects improves as sample size increases, while each of the regularization methods performs well regardless of sample size. Each run was replicated 200 times, with the corresponding code in the Appendix. The results are displayed in Table *
+To compare the performance of each penalization method further, particularly in the presence of small number of parameters to sample size ratios, a small scale simulation study was conducted. The same model and effects was kept, but the sample size was varied to include 80, 200, and 1000 to demonstrate how maximum likelihood estimation of effects improves as sample size increases, while each of the regularization methods performs well regardless of sample size. Each run was replicated 200 times. The results are displayed in Table *
 
 
 \begin{table}[ht]
@@ -482,10 +499,18 @@ To compare the performance of each penalization method further, particularly in 
 \end{table}
 
 
+
+
 # Discussion
+
+This paper provides an introduction to the \pkg{regsem} package, outlining the mathematical details of the regularized SEM method and the usage of the package itself. 
 
 ## Future Directions
 
-## Limitation
+
+
+## Limitations
+
+With highly constrained structural equation models, achieving convergence can be particularly problematic in using \pkg{regsem}. For instance, with the latent change score model (cite jack), Bayesian regularization methods have less difficulty in reaching convergence across chains (cite chapter). With the advent of additional sparsity inducing priors, along with new forms of software such as STAN (cite stan), for some models it may be more appropriate to use these Bayesian regularization methods over their frequentist counterparts. 
 
 ## Conclusion
