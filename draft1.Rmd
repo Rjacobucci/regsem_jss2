@@ -493,12 +493,12 @@ To compare the performance of each penalization method further, particularly in 
   \hline
  & N & ML & lasso & alasso & SCAD & MCP \\ 
   \hline
-1 & 80.00 & 0.08 & 0.08 & \textbf{0.04} & 0.05 & \textbf{0.04} \\ 
-  2 & 200.00 & 0.06 & 0.05 & \textbf{0.02} & 0.03 & 0.03 \\ 
-  3 & 1000.00 & 0.05 & 0.08 & \textbf{0.01} & \textbf{0.01} & 0.28 \\ 
-  4 & 80.00 & 0.33 & \textbf{0.31} & 0.35 & 0.35 & 0.45 \\ 
-  5 & 200.00 & \textbf{0.19} & \textbf{0.19} & 0.23 & 0.26 & 0.45 \\ 
-  6 & 1000.00 & \textbf{0.00} & \textbf{0.00} & \textbf{0.00} & 0.01 & 0.14 \\ 
+1 & 80.00 & 0.08 & 0.08 & \textbf{0.04} & 0.05 & \textbf{0.20} \\ 
+  2 & 200.00 & 0.06 & 0.05 & \textbf{0.02} & 0.03 & 0.06 \\ 
+  3 & 1000.00 & 0.05 & 0.08 & \textbf{0.01} & \textbf{0.01} & 0.02 \\ 
+  4 & 80.00 & 0.33 & \textbf{0.31} & 0.35 & 0.35 & 0.31 \\ 
+  5 & 200.00 & \textbf{0.19} & \textbf{0.19} & 0.23 & 0.26 & 0.27 \\ 
+  6 & 1000.00 & \textbf{0.00} & \textbf{0.00} & \textbf{0.00} & 0.01 & 0.03 \\ 
    \hline
 \end{tabular}
 	\caption{Results from the simulation using the model in Figure 1. Each condition was replicated 200 times. False positives represent concluding that the simulated regressions of zero were concluded as nonzero. False negatives are concluding that either the simulated regression values of 1 or 0.2 are in fact zero. Bolded values represent the smallest error per condition.}
