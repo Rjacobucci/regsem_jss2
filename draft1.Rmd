@@ -411,28 +411,28 @@ best.pars[1:20,1] <- reg.out[[1]][1,1:20]
 
 
 best.pars[21,2] <- min(reg.out[[2]][,"BIC"])
-loc1 <- which(reg.out[[2]][,"BIC"] ==min(reg.out[[2]][,"BIC"]))
+loc1 <- which(reg.out[[2]][,"BIC"] ==min(reg.out[[2]][,"BIC"]))[1]
 best.pars[1:20,2] <- reg.out[[1]][loc1,1:20]
 
 reg.out2 <- cv_regsem(out,pars_pen=c(1:20),type="alasso",n.lambda=40,mult.start=FALSE,jump=.003)
 reg.out2
 
 best.pars[21,3] <- min(reg.out2[[2]][,"BIC"])
-loc2 <- which(reg.out2[[2]][,"BIC"] ==min(reg.out2[[2]][,"BIC"]))
+loc2 <- which(reg.out2[[2]][,"BIC"] ==min(reg.out2[[2]][,"BIC"]))[1]
 best.pars[1:20,3] <- reg.out2[[1]][loc2,1:20]
 
 reg.out3 <- cv_regsem(out,pars_pen=c(1:20),type="scad",n.lambda=40,mult.start=FALSE,jump=.05)
 reg.out3
 
 best.pars[21,4] <- min(reg.out3[[2]][,"BIC"])
-loc3 <- which(reg.out3[[2]][,"BIC"] ==min(reg.out3[[2]][,"BIC"]))
+loc3 <- which(reg.out3[[2]][,"BIC"] ==min(reg.out3[[2]][,"BIC"]))[1]
 best.pars[1:20,4] <- reg.out3[[1]][loc3,1:20]
 
 reg.out4 <- cv_regsem(out,pars_pen=c(1:20),type="mcp",n.lambda=40,mult.start=FALSE,jump=.2)
 reg.out4
 
 best.pars[21,5] <- min(reg.out4[[2]][,"BIC"])
-loc4 <- which(reg.out4[[2]][,"BIC"] ==min(reg.out4[[2]][,"BIC"]))
+loc4 <- which(reg.out4[[2]][,"BIC"] ==min(reg.out4[[2]][,"BIC"]))[1]
 best.pars[1:20,5] <- reg.out4[[1]][loc4,1:20]
 
 
@@ -482,19 +482,19 @@ To compare the performance of each penalization method further, particularly in 
 
 
 \begin{table}[ht]
-	\centering
-	\begin{tabular}{rrrrrrrr}
-		\hline
-		& N & ML & lasso & alasso & SCAD & MCP \\ 
-		\hline
-		 & 80.00 & 0.09 & 0.05 & \textbf{0.04} & 0.05 & 0.05 \\ 
-		False Positives & 200.00 & 0.06 & 0.05 & \textbf{0.02} & 0.03 & 0.04 \\ 
-		 & 1000.00 & 0.05 & 0.05 & \textbf{0.01} & \textbf{0.01} & 0.19 \\ 
-		 & 80.00 & 0.45 & \textbf{0.41} & 0.43 & 0.45 & 0.54 \\ 
-		False Negatives & 200.00 & 0.30 & \textbf{0.24} & 0.29 & 0.29 & 0.45 \\ 
-		 & 1000.00 & 0.10 & \textbf{0.09} & 0.17 & 0.19 & 0.24 \\ 
-		\hline
-	\end{tabular}
+\centering
+\begin{tabular}{rrrrrrr}
+  \hline
+ & N & ML & lasso & alasso & SCAD & MCP \\ 
+  \hline
+1 & 80.00 & 0.08 & 0.08 & 0.04 & 0.05 & 0.04 \\ 
+  2 & 200.00 & 0.06 & 0.05 & 0.02 & 0.03 & 0.03 \\ 
+  3 & 1000.00 & 0.05 & 0.08 & 0.01 & 0.01 & 0.28 \\ 
+  4 & 80.00 & 0.33 & 0.31 & 0.35 & 0.35 & 0.45 \\ 
+  5 & 200.00 & 0.19 & 0.19 & 0.23 & 0.26 & 0.45 \\ 
+  6 & 1000.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.14 \\ 
+   \hline
+\end{tabular}
 	\caption{Results from the simulation using the model in Figure 1. Each condition was replicated 200 times. False positives represent concluding that the simulated regressions of zero were concluded as nonzero. False negatives are concluding that either the simulated regression values of 1 or 0.2 are in fact zero. Bolded values represent the smallest error per condition.}
 \end{table}
 
