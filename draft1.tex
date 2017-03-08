@@ -12,15 +12,18 @@ Ross Jacobucci\\University of Notre Dame
 
 \Abstract{
 The \pkg{regsem} package in \proglang{R}, an implementation of
-Regularized Structural Equation Modeling (Jacobucci, Grimm, and McArdle
-2016), was recently developed with the goal incorporating various forms
-of penalized likelihood estimation with a broad array of structural
-equations models. The forms of regularization include both the
-\textit{ridge} (Hoerl and Kennard 1970) and the least absolute shrinkage
-and selection operator (\textit{lasso}; (Tibshirani 1996), along with
-sparser extensions. The paper details both the algorithmic details and
-an overview of the use of \pkg{regsem} through both a factor analysis
-and latent growth curve models.
+regularized structural equation modeling (RegSEM; Jacobucci, Grimm, and
+McArdle 2016), was recently developed with the goal incorporating
+various forms of penalized likelihood estimation with a broad array of
+structural equations models. The forms of regularization include both
+the \textit{ridge} (Hoerl and Kennard 1970) and the least absolute
+shrinkage and selection operator (\textit{lasso}; Tibshirani 1996),
+along with sparser extensions. RegSEM is particularly useful for
+structural equation models that have a small parameter to sample size
+ratio, as the addition of penalties can reduce the complexity, thus
+reducing the bias of the parameter estimates. The paper details the
+algorithmic details and an overview of the use of \pkg{regsem} with the
+application of both factor analysis and latent growth curve models.
 }
 
 \Plainauthor{Ross Jacobucci}
@@ -39,7 +42,7 @@ and latent growth curve models.
 \Address{
     Ross Jacobucci\\
   University of Notre Dame\\
-  First line Second line\\
+  118 Haggar Hall, Notre Dame, IN 46556\\
   E-mail: \href{mailto:rcjacobuc@gmail.com}{\nolinkurl{rcjacobuc@gmail.com}}\\
   URL: rjacobucci.com\\~\\
   }
@@ -62,17 +65,14 @@ denoting that all parameters in a sparse model that are zero are
 correctly estimated as zero with probability tending to one (Lam and Fan
 2009). The goal is accurately and efficiently estimate a model that is
 parsimonious in allowing users to easily interpret the model's
-representation of reality. In Figure 1, this would entail testing
-whether the cross-loadings are necessary to the fit of the model, or
-whether they can be pared away without an meaningful increase in bias.
-
-In the context of latent variables, reducing the complexity of models
-can come in many forms: selecting among multiple predictors of a latent
-variable, simplifying factor structure by removing cross-loadings,
-determining whether the addition of nonlinear terms are necessary in
-longitudinal models, and many others. As a simple running example,
-Figure 1 depicts a linear latent growth curve model with four time
-points and ten predictors for a simulated dataset.
+representation of reality. In the context of latent variables, reducing
+the complexity of models can come in many forms: selecting among
+multiple predictors of a latent variable, simplifying factor structure
+by removing cross-loadings, determining whether the addition of
+nonlinear terms are necessary in longitudinal models, and many others.
+As a simple running example, Figure 1 depicts a linear latent growth
+curve model (e.g. Meredith and Tisak 1990) with four time points and ten
+predictors for a simulated dataset.
 
 \begin{figure}
     \centering
@@ -86,9 +86,12 @@ estimated parameters in this model, resulting in a estimated parameter
 to sample size ratio as far below even the most liberal recommendations
 (e.g.~10:1 parameters to sample size; Kline 2015). In lieu of finding
 additional respondents, reducing the number of parameters estimated is
-one effective strategy. Specifically, the 20 estimated regressions from
-\textit{c1-c10} could be reduced to a number that makes the number of
-parameters estimated to sample size ratio more reasonable.
+one effective strategy for reducing bias. Specifically, the 20 estimated
+regressions from \textit{c1-c10} could be reduced to a number that makes
+the number of parameters estimated to sample size ratio more reasonable.
+To explore this further, the next section provides an overview of
+regularization, and how different forms can be used to perform variable
+selection across a broad range of models.
 
 \section{Regularization}\label{regularization}
 
@@ -108,7 +111,7 @@ matrix \(X \in {R}^{n \times p}\) , the ridge estimates are defined as
 \] \noindent
 where \(\beta_{0}\) is the intercept, \(\beta_{j}\) is the coefficient
 for \(x_{j}\), and \(\lambda\) is the penalty that controls the amount
-of shrinkage. Note that when \(\lambda = 0\), equation 3 reduces to
+of shrinkage. Note that when \(\lambda = 0\), Equation 3 reduces to
 ordinary least squares regression. As \(\lambda\) is increased, the
 \(\beta\) parameters are shrunken towards zero. The lasso estimates are
 defined as
@@ -128,12 +131,13 @@ regression to select among the covariates, the growth model would need
 to be reduced to two factor scores, which neglects both the relationship
 between both the slope and intercept, reducing both to independent
 factor scores. Particularly in models with a greater number of latent
-variables, this becomes increasing problematic. A method that keeps the
-model structure, while allowing for a penalized estimation of specific
+variables, this becomes increasingly problematic. A method that keeps
+the model structure, while allowing for penalized estimation of specific
 parameters is regularized structural equation modeling (RegSEM;
 Jacobucci, Grimm, and McArdle 2016). RegSEM adds a penalty function to
-the traditional maximum likelihood cost function for SEMs. The maximum
-likelihood cost function for SEMs can be written as
+the traditional maximum likelihood estimation (MLE) for structural
+equation models (SEMs). The maximum likelihood cost function for SEMs
+can be written as
 
 \[\tag{3}
 F_{ML}=log(\left|\Sigma\right|)+tr(C*\Sigma^{-1})-log(\left|C\right|)- p.
@@ -142,7 +146,7 @@ F_{ML}=log(\left|\Sigma\right|)+tr(C*\Sigma^{-1})-log(\left|C\right|)- p.
 \noindent
 where \(\Sigma\) is the model implied covariance matrix, \(C\) is the
 observed covariance matrix, and \(p\) is the number of estimated
-parameters. RegSem builds in an additional element to penalize certain
+parameters. RegSEM builds in an additional element to penalize certain
 model parameters yielding
 
 \[\tag{4}
@@ -155,8 +159,8 @@ between zero and infinity. When \(\lambda\) is zero, MLE is performed,
 and when \(\lambda\) is infinity, all penalized parameters are shrunk to
 zero. \(P(\cdot)\) is a general function for summing the values of one
 or more of the model's parameter matrices. The two common forms of
-\(P(\cdot)\) include both the Lasso (\(\| \cdot \|_{1}\)), which
-penalizes the sum of the absolute values of the parameters, and Ridge
+\(P(\cdot)\) include both the lasso (\(\| \cdot \|_{1}\)), which
+penalizes the sum of the absolute values of the parameters, and ridge
 (\(\| \cdot \|_{2}\)), which penalizes the sum of the squared values of
 the parameters.
 
@@ -176,12 +180,11 @@ c1\xrightarrow[]{}s\\
 \vdots \\
 c10\xrightarrow[]{}s\\
 \end{matrix}  \right\|_{1}
-\]
-
+\] \noindent
 Although the fit of the model is easily calculated given a set of
 parameter estimates, traditional optimization procedures for SEM cannot
 be used given the non-differentiable nature of lasso penalties, and as
-detailed later, extensions.
+detailed later, sparse extensions.
 
 \subsection{Optimization}\label{optimization}
 
@@ -191,23 +194,24 @@ Tibshirani, and Wainwright 2015). In comparison to one-step procedures
 common in SEM optimization, that only involve a method for calculating
 the step size and the direction (typically using the gradient and an
 approximation of the Hessian), proximal gradient descent can be
-formulated as a two-step procedure. With a stepsize of \(\alpha^{t}\)
-and parameters \(\theta^{t}\) at iteration \textit{t}:
+formulated as a two-step procedure. With a stepsize of \(s^{t}\) and
+parameters \(\theta^{t}\) at iteration \textit{t}:
 
 \begin{enumerate}
-    \item First, take a gradient step size $z = \theta^{t} - \alpha^{t} \nabla g(\theta^{t})$.
-    \item Second, perform elementwise soft-thresholding $\theta^{t+1} = S_{\alpha^{t} \lambda}(z)$.
+    \item First, take a gradient step size $z = \theta^{t} - s^{t} \nabla g(\theta^{t})$.
+    \item Second, perform elementwise soft-thresholding $\theta^{t+1} = S_{s^{t} \lambda}(z)$.
 \end{enumerate}
 
-where \(S_{\alpha \lambda}(z)\) is the soft-thresholding operator
-(Donoho 1995) used to overcome non-differentiability of the lasso
-penalty at the origin:
+where \(S_{s^{t} \lambda}(z)\) is the soft-thresholding operator (Donoho
+1995) used to overcome non-differentiability of the lasso penalty at the
+origin:
 
 \begin{equation}
-S_{\alpha \lambda}(z_{j}) = sign(z_{j})(|z_{j}|-\alpha \lambda)_{+}
+S_{s^{t} \lambda}(z_{j}) = sign(z_{j})(|z_{j}|-s^{t} \lambda)_{+}
 \end{equation}
 
-where \((x)_{+}\) is shorthand for max(x,0) and \(\alpha\) is the step
+\noindent
+where \((x)_{+}\) is shorthand for max(x,0) and \(s^{t}\) is the step
 size. Henceforth, \(\lambda\) is assumed to encompass both the penalty
 and the step size \(s^{t}\). This procedure is only used to updated
 parameters that are subject to penalty. Non-penalized parameters are
@@ -228,14 +232,14 @@ gradient descent manifests itself as:
             %   \footnotetext{Note: $A(pen)$ refers only to the penalized parameters, $vec()$ concatenates both vectors}
             \State Generate starting values for $\theta_{t}$
             \State Calculate initial fit $F_{t}$
-            \State Set step size $\alpha$. .5 works well at this time.
+            \State Set step size $s$. .1 works well at this time.
             \State Set tolerance (tol). e.g. 1e-6
             \While {$|F_{t} - F_{t+1}| > tol$}
             \State Calculate gradient for A:$ \nabla (A) =:  \frac{\partial A}{\partial \theta_{t}}$
-            \State $ \theta_{t+1^{*},A} =: \theta_{t,A} - \alpha \nabla(A)$
-            \State  Update penalized parameters: $\theta_{t+1^{*},A(pen)} =: S_{\alpha \lambda}(\theta_{t+1^{*},A(pen)})$
+            \State $ \theta_{t+1^{*},A} =: \theta_{t,A} - s \nabla(A)$
+            \State  Update penalized parameters: $\theta_{t+1^{*},A(pen)} =: S_{s \lambda}(\theta_{t+1^{*},A(pen)})$
             \State Calculate gradient for S:$ \nabla (S) =:  \frac{\partial S}{\partial \theta_{t+1^{*}}}$ 
-            \State Update S parameters: $ \theta_{t+1^{*},S} =: \theta_{t,S} - \alpha \nabla(S)$
+            \State Update S parameters: $ \theta_{t+1^{*},S} =: \theta_{t,S} - s \nabla(S)$
             \State $\theta_{t+1} =: \theta_{t+1^{*}}$ %vec(\theta_{t+1^{*},A},\theta_{t+1^{*},S})$
             \State Update $S_{t+1}, A_{t+1}$
             \State $ \Sigma_{t+1} = F(I-A_{t+1})^{-1}S_{t+1}(I-A_{t+1})^{-T}F^{T}$
@@ -267,7 +271,7 @@ forms of regularization exist.
 
 Most notably, the elastic net (Zou and Hastie 2005) encompasses both the
 ridge and lasso, reaching a compromise between both through the addition
-of an additional parameter \(\alpha\).
+of an additional parameter \(\alpha\), manifesting itself as
 
 \[
 P_{enet}(\theta_{j}) = 0.5(1-\alpha)\| \theta_{j} \|_{2} + \alpha\| \theta_{j} \|_{2}
@@ -295,8 +299,8 @@ variables differ dramatically. By only using one value of \(\lambda\),
 this can add appreciable bias to the resulting estimates (e.g. Fan and
 Li 2001). One method proposed for overcoming this limitation is the
 adaptive lasso (Zou 2006). Instead of penalizing parameters directly,
-each parameter is scaled by the un-penalized estimated (maximum
-likelihood estimate in SEM). This manifests itself as: \[
+each parameter is scaled by the un-penalized estimated (MLE parameter
+estimates in SEM). The adaptive lasso results in: \[
 F_{alasso} = F_{ML} + \lambda \| \theta_{ML}^{-1} * \theta_{pen} \|_{1}
 \] \noindent
 with, following the same form for the lasso, the soft-thresholding
@@ -306,11 +310,11 @@ update is:
 S(\theta_{j})= sign(\theta_{j})(|\theta_{j}|-\frac{\lambda}{2|\theta_{j}|})_{+}
 \] \noindent
 In this, larger penalties are given for non-significant (smaller)
-parameters, limiting the bias in estimating larger, significant,
+parameters, limiting the bias in estimating larger, significant
 parameters. Note that one limitation of this approach for SEM models is
-that the model needs to be estimable with maximum likelihood.
-Particularly for models with large numbers of variables, in relation to
-sample size, this may not be possible.
+that the model needs to be estimable with MLE. Particularly for models
+with large numbers of variables, in relation to sample size, this may
+not be possible.
 
 \subsection{Smoothly Clipped Absolute Deviation
 Penalty}\label{smoothly-clipped-absolute-deviation-penalty}
@@ -325,8 +329,9 @@ Two additional penalties that overcome some of the deficiencies of the
 lasso, producing sparser solutions, include the smoothly clipped
 absolute deviation penalty (SCAD; Fan and Li 2001) and the minimax
 concave penalty (MCP; Zhang 2010). In comparison to the lasso, both the
-SCAD and MCP have much steeper penalties for smaller parameters, as is
-evident in Figure **.
+SCAD and MCP have much smaller penalties for large parameters, where the
+amount of penalty for small penalties is similar to the lasso, as is
+evident in Figure 2.
 
 The SCAD takes the form of:
 
@@ -345,9 +350,10 @@ S(\theta_{j},\lambda),&  |\theta_{j}| \geq 2\lambda\\
 \]
 
 \noindent
-As the the penalty in equation 11 is non-convex (as is the MCP), this
-makes computation more difficult. However, in the context of SEM this
-can be seen as less problematic, as equation 3 is also non-convex.
+for \(\gamma > 2\). As the the penalty in equation 11 is non-convex (as
+is the MCP), this makes computation more difficult. However, in the
+context of SEM this can be seen as less problematic, as equation 3 is
+also non-convex.
 
 \subsection{Minimax Concave Penalty}\label{minimax-concave-penalty}
 
@@ -367,30 +373,33 @@ S(\theta_{j})=
 \]
 
 \noindent
-As seen in Figure **, this results in similar amount of shrinkage for
-smaller estimates in comparison to the SCAD, however, less for larger
-estimates.
+for \(\gamma > 0\). As seen in Figure 2, this results in similar amount
+of shrinkage for smaller estimates in comparison to the SCAD, however,
+less for larger estimates. For both the SCAD and MCP, both the
+\(\gamma\) and \(\lambda\) parameters are used as hyper-parameters. This
+involves testing models over a two-dimensional array of parameters,
+however, \(\gamma\) can be fixed to 3.7 per Fan and Li (2001).
 
 \section{Implementation}\label{implementation}
 
-RegSEM is implemented as the \pkg{regsem} package in the \proglang{R}
-statistical environment. To estimate the maximum likelihood fit of the
-model, \pkg{regsem} uses \textit{Reticular Action Model} (RAM; J. J.
-McArdle and McDonald 1984, McArdle (2005)) notation to derive an implied
-covariance matrix. The parameters of each SEM are translated into three
-matrices: the \textit{filter} (\textit{F}), the \textit{asymmetric}
-(\textit{A}; directed paths; e.g.~factor loadings or regressions), and
-the \textit{symmetric} (\textit{S}; undirected paths; e.g.~covariances
-or variances). See Jacobucci, Grimm, and McArdle (2016) for more detail
-on RAM notation.
+RegSEM is implemented as the \pkg{regsem} package (Jacobucci 2017) in
+the \proglang{R} statistical environment (R Core Team 2017). To estimate
+the maximum likelihood fit of the model, \pkg{regsem} uses
+\textit{Reticular Action Model} (RAM; J. J. McArdle and McDonald 1984,
+McArdle (2005)) notation to derive an implied covariance matrix. The
+parameters of each SEM are translated into three matrices: the
+\textit{filter} (\textit{F}), the \textit{asymmetric} (\textit{A};
+directed paths; e.g.~factor loadings or regressions), and the
+\textit{symmetric} (\textit{S}; undirected paths; e.g.~covariances or
+variances). See Jacobucci, Grimm, and McArdle (2016) for more detail on
+RAM notation.
 
 Syntax for using the \pkg{regsem} is based on the \pkg{lavaan} package
 (Rosseel 2012) for structural equation models. \pkg{lavaan} is a general
 SEM software program that can fit a wide array of models with various
 estimation methods. To use \pkg{regsem}, the user has to first fit the
 model in \pkg{lavaan}. As an example, below is the code for a one factor
-model fit in lavaan with the Holzinger-Swineford (Holzinger and
-Swineford 1939) dataset.
+model fit in lavaan with the Holzinger and Swineford (1939) dataset.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -407,14 +416,14 @@ After a model is run in lavaan, using \code{lavaan()} or any of the
 wrapper functions for fitting a model (i.e. \code{sem()}, \code{cfa()},
 or \code{growth()}), the object is then used by the regsem package to
 translate the model into RAM notation and run using one of three
-functions: \code{regsem()}, \code{multi_optim()}, or \code{cv_regsem}.
+functions: \code{regsem()}, \code{multi_optim()}, or \code{cv_regsem()}.
 The \code{regsem()} function runs a model with one penalty value,
 whereas \code{multi_optim()} does the same but allows for the use of
 random starting values. However, the main function is \code{cv_regsem()}
 as this not only runs the model, but runs it across a vector of varying
 penalty values. For instance in the above one-factor model, each of the
 factor loadings can be tested with lasso penalties to determine whether
-each indicator is a necessary component of the latent factor.
+each indicator is a necessary component of the latent factor:
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -439,56 +448,82 @@ should increase for each model (\code{jump=.05}), and finally that lasso
 estimation is used (\code{type="lasso"}).
 
 The \code{out.reg} object contains two components, \code{out.reg[[1]]}
-has the parameter estimates for each of the 15 models, while
-\code{out.reg[[2]]} has the fit of each model. For the code above, using
-the \pkg{xtable} package to turn the output from \code{out.reg[[2]]}
-into a table
+has the parameter estimates for each of the 15 models,
 
 \begin{CodeChunk}
 \begin{CodeInput}
-round(out.reg[[2]],3)
+head(round(out.reg[[1]],2),5)
 \end{CodeInput}
 \begin{CodeOutput}
-      lambda conv rmsea      BIC
- [1,]   0.00    0 0.188 7805.177
- [2,]   0.05    0 0.191 7815.389
- [3,]   0.10    0 0.199 7840.590
- [4,]   0.15    0 0.210 7875.842
- [5,]   0.20    0 0.203 7886.147
- [6,]   0.25    0 0.210 7911.816
- [7,]   0.30    0 0.214 7934.454
- [8,]   0.35    0 0.220 7960.670
- [9,]   0.40    0 0.227 7991.033
-[10,]   0.45    0 0.229 8009.416
-[11,]   0.50    0 0.234 8034.805
-[12,]   0.55    0 0.242 8069.487
-[13,]   0.60    0 0.286 8360.539
-[14,]   0.65    0 0.286 8360.530
-[15,]   0.70    0 0.286 8360.525
+     f1 -> x1 f1 -> x2 f1 -> x3 f1 -> x4 f1 -> x5 f1 -> x6 f1 -> x7
+[1,]     0.51     0.26     0.25     0.98     1.08     0.92     0.20
+[2,]     0.41     0.17     0.17     0.89     0.98     0.83     0.12
+[3,]     0.33     0.10     0.10     0.83     0.91     0.77     0.06
+[4,]     0.27     0.04     0.04     0.78     0.87     0.72     0.01
+[5,]     0.21     0.00     0.00     0.75     0.83     0.69     0.00
+     f1 -> x8 f1 -> x9 x1 ~~ x1 x2 ~~ x2 x3 ~~ x3 x4 ~~ x4 x5 ~~ x5
+[1,]     0.20     0.31     1.10     1.31     1.21     0.38     0.49
+[2,]     0.13     0.23     1.11     1.32     1.22     0.38     0.48
+[3,]     0.08     0.17     1.13     1.33     1.23     0.38     0.47
+[4,]     0.03     0.12     1.15     1.35     1.25     0.38     0.46
+[5,]     0.00     0.07     1.18     1.36     1.26     0.39     0.46
+     x6 ~~ x6 x7 ~~ x7 x8 ~~ x8 x9 ~~ x9
+[1,]     0.36     1.15     0.98     0.92
+[2,]     0.36     1.15     0.99     0.93
+[3,]     0.36     1.16     1.00     0.94
+[4,]     0.37     1.17     1.01     0.96
+[5,]     0.38     1.18     1.02     0.97
+\end{CodeOutput}
+\end{CodeChunk}
+
+\noindent
+while \code{out.reg[[2]]} looks like:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+round(out.reg[[2]],2)
+\end{CodeInput}
+\begin{CodeOutput}
+      lambda conv rmsea     BIC
+ [1,]   0.00    0  0.19 7805.18
+ [2,]   0.05    0  0.19 7815.39
+ [3,]   0.10    0  0.20 7840.59
+ [4,]   0.15    0  0.21 7875.84
+ [5,]   0.20    0  0.20 7886.15
+ [6,]   0.25    0  0.21 7911.82
+ [7,]   0.30    0  0.21 7934.45
+ [8,]   0.35    0  0.22 7960.67
+ [9,]   0.40    0  0.23 7991.03
+[10,]   0.45    0  0.23 8009.42
+[11,]   0.50    0  0.23 8034.81
+[12,]   0.55    0  0.24 8069.49
+[13,]   0.60    0  0.29 8360.54
+[14,]   0.65    0  0.29 8360.53
+[15,]   0.70    0  0.29 8360.52
 \end{CodeOutput}
 \end{CodeChunk}
 
 In this, the user can examine the penalty (lambda), whether the model
-converged (``conv''), with values of 0 indicating convergence, and the
-fit of each model. By default, two fit indices are output, both the root
-mean square error of approximation (RMSEA; Steiger and Lind 1980), and
-the Bayesian information criteria (BIC; Schwarz 1978). Both the RMSEA
-and BIC take into account the degrees of freedom of the model, an
-important point for model selection in the presence of lasso penalties
-(and other penalties that set parameters to zero). This concurs with
-work done on degrees of freedom for lasso regression, as Zou, Hastie,
-and Tibshirani (2007) proved that the number of nonzero coefficients is
-an unbiased estimate of the degrees of freedom for regression. As the
-penalty increases, select parameter are set to zero, thus the degrees of
-freedom increases, which for fit indices that include the degrees of
-freedom in the calculation, means that although the likelihood of the
-model may only get worse (increase), both the RMSEA and BIC can improve
-(decrease) due to the impact of increased degrees of freedom.
+converged (``conv''=0), and the fit of each model. By default, two fit
+indices are output, both the root mean square error of approximation
+(RMSEA; Steiger and Lind 1980), and the Bayesian information criteria
+(BIC; Schwarz 1978). Both the RMSEA and BIC take into account the
+degrees of freedom of the model, an important point for model selection
+in the presence of lasso penalties (and other penalties that set
+parameters to zero). Based on work done on degrees of freedom for lasso
+regression, as Zou, Hastie, and Tibshirani (2007) proved that the number
+of nonzero coefficients is an unbiased estimate of the degrees of
+freedom for regression. As the penalty increases, select parameter are
+set to zero, thus the degrees of freedom increases, which for fit
+indices that include the degrees of freedom in the calculation, means
+that although the likelihood of the model may only get worse (increase),
+both the RMSEA and BIC can improve (decrease) due to the impact of
+increased degrees of freedom.
 
 Instead of examining the \code{out.reg[[1]]} output matrix of parameter
-estimates, it is easiest to plot the trajectory of each of the penalized
-parameters. This is accomplished with \code{plot_cv(out.reg,pars=1:9)},
-resulting in:
+estimates, users also have the option to plot the trajectory of each of
+the penalized parameters. This is accomplished with
+\code{plot_cv(out.reg,pars=1:9)}, resulting in:
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -496,11 +531,11 @@ plot_cv(out.reg,pars=1:9)
 \end{CodeInput}
 
 
-\begin{center}\includegraphics{draft1_files/figure-latex/unnamed-chunk-5-1} \end{center}
+\begin{center}\includegraphics{draft1_files/figure-latex/unnamed-chunk-6-1} \end{center}
 
 \end{CodeChunk}
 
-After a final model (penalty) is chosen, user's have the option either
+After a final model (penalty) is chosen, users have the option either
 just use the output from \code{cv_regsem()}, or the final model can be
 re-run with either \code{regsem()} or \code{multi_optim()} to attain
 additional information. In the model above, the best fitting penalty,
@@ -556,9 +591,9 @@ holdout covariance matrix.
 \section{Comparison}\label{comparison}
 
 To compare the different types of penalties in \pkg{regsem}, we return
-to the the initial example of the latent growth curve model. Using the
-same simulated data (see Appendix), the model can be run in \pkg{lavaan}
-as
+to the the initial example of the latent growth curve model displayed in
+Figure 1. Using the same simulated data, the model can be run in
+\pkg{lavaan} as
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -586,16 +621,16 @@ defaults to 3.7 per Fan and Li (2001).
 
 For the purposes of comparison, each of the 20 covariate regressions
 were penalized using the lasso, adaptive lasso, SCAD, and MCP, and
-compared to the maximum likelihood estimates (see Appendix for code). In
-this model, the data were simulated to have two large effects (both
-\textit{c1} parameters), two small effects (both \textit{c2} parameters)
-and sixteen true zero effects (\textit{c3-c10} parameters). Note that
-the covariates were simulated to have zero covariance among each
-variable. If there was substantial collinearity among covariates, the
-elastic net would be more appropriate to simultaneously select
-predictors while also accounting for the collinearity. The parameter
-estimates corresponding the the best fit of the BIC are displayed in
-Table *
+compared to the maximum likelihood estimates. In this model, the data
+were simulated to have two large effects (both \textit{c1} parameters),
+two small effects (both \textit{c2} parameters) and sixteen true zero
+effects (\textit{c3-c10} parameters). Note that the covariates were
+simulated to have zero covariance among each variable. If there was
+substantial collinearity among covariates, the elastic net would be more
+appropriate to simultaneously select predictors while also accounting
+for the collinearity. The parameter estimates corresponding the the best
+fit of the BIC are has the fit of each model, resulting in Table 1,
+created using the \pkg{xtable} package (Dahl 2009).
 
 \begin{table}[ht]
 \centering
@@ -635,11 +670,11 @@ these errors), both the adaptive lasso and SCAD correctly identified
 every true zero effect. The lasso identified two false effects while the
 MCP mistakenly identified one. Additionally, the lasso estimation of the
 true effects was attentuated in comparison to the other regularization
-methods. This is in line with previous research (cite), necessitating
-the use of a two-step relaxed lasso method (Meinshausen 2007, see
-Jacobucci, Grimm, and McArdle (2016)) As expected given the small ratio
-between number of estimated parameters and sample size, maximum
-likelihood mistakenly identified 3 false effects as significant.
+methods. This is in line with previous research (Fan and Li 2001),
+necessitating the use of a two-step relaxed lasso method (Meinshausen
+2007, see Jacobucci, Grimm, and McArdle (2016)) As expected given the
+small ratio between number of estimated parameters and sample size,
+maximum likelihood mistakenly identified 3 false effects as significant.
 
 To compare the performance of each penalization method further,
 particularly in the presence of small number of parameters to sample
@@ -648,7 +683,9 @@ model and effects was kept, but the sample size was varied to include
 80, 200, and 1000 to demonstrate how maximum likelihood estimation of
 effects improves as sample size increases, while each of the
 regularization methods performs well regardless of sample size. Each run
-was replicated 200 times. The results are displayed in Table *
+was replicated 200 times. For each regularization method, the BIC was
+used to choose a final model among the 40 penalty vales. The results are
+displayed in Table 2.
 
 \begin{table}[ht]
 \centering
@@ -656,23 +693,38 @@ was replicated 200 times. The results are displayed in Table *
   \hline
  & N & ML & lasso & alasso & SCAD & MCP \\ 
   \hline
-1 & 80.00 & 0.08 & 0.08 & 0.04 & 0.05 & 0.04 \\ 
-  2 & 200.00 & 0.06 & 0.05 & 0.02 & 0.03 & 0.03 \\ 
-  3 & 1000.00 & 0.05 & 0.08 & 0.01 & 0.01 & 0.28 \\ 
-  4 & 80.00 & 0.33 & 0.31 & 0.35 & 0.35 & 0.45 \\ 
-  5 & 200.00 & 0.19 & 0.19 & 0.23 & 0.26 & 0.45 \\ 
-  6 & 1000.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.14 \\ 
+1 & 80.00 & 0.08 & 0.08 & \textbf{0.04} & 0.05 & \textbf{0.04} \\ 
+  2 & 200.00 & 0.06 & 0.05 & \textbf{0.02} & 0.03 & 0.03 \\ 
+  3 & 1000.00 & 0.05 & 0.08 & \textbf{0.01} & \textbf{0.01} & 0.28 \\ 
+  4 & 80.00 & 0.33 & \textbf{0.31} & 0.35 & 0.35 & 0.45 \\ 
+  5 & 200.00 & \textbf{0.19} & \textbf{0.19} & 0.23 & 0.26 & 0.45 \\ 
+  6 & 1000.00 & \textbf{0.00} & \textbf{0.00} & \textbf{0.00} & 0.01 & 0.14 \\ 
    \hline
 \end{tabular}
     \caption{Results from the simulation using the model in Figure 1. Each condition was replicated 200 times. False positives represent concluding that the simulated regressions of zero were concluded as nonzero. False negatives are concluding that either the simulated regression values of 1 or 0.2 are in fact zero. Bolded values represent the smallest error per condition.}
 \end{table}
+
+For false positive, the adaptive lasso demonstrated the best
+performance, where the performance of maximum likelihood estimation
+leveled off at the 0.05 level at a sample size of 1000 as expected. For
+false negatives, lasso penalties demonstrated similar results to maximum
+likelihood. This was expected given the tendency of the lasso to
+under-penalize small coefficients in comparison to the other
+regularization methods. The adaptive lasso and SCAD demonstrated
+slightly worse results, however, outside of the MCP, each method made
+either zero or near zero errors at a sample size of 1000. The poor
+performance of the MCP may be in part due to fixing the \(\gamma\)
+penalty to 3.7. Varying this parameter may improve the performance of
+the method. In summary, the regularization methods demonstrated an
+improvement over maximum likelihood, particularly at small samples, for
+a model that had a large number of estimated parameters.
 
 \section{Discussion}\label{discussion}
 
 This paper provides an introduction to the \pkg{regsem} package,
 outlining the mathematical details of the regularized structural
 equation modeling (RegSEM; Jacobucci, Grimm, and McArdle 2016) method
-and the usage of the package itself. RegSEM allows the use of
+and the usage of the \pkg{regsem} package. RegSEM allows the use of
 regularization while keeping the structural equation model intact,
 adding penalization directly into the estimation of the model. The
 application of RegSEM was detailed using two example models: a latent
@@ -687,26 +739,26 @@ maxiumum likelihood across sample sizes.
 
 Broadly speaking, there is a growing amount of research into the
 integration between data mining methods and latent variable models.
-Specifically, beyond regularized SEM, this has taken form of item
-response theory and regularization (Sun et al. 2016), pairing both
-structural equation models with decision trees (Brandmaier et al. 2013),
-exploratory psychological network analaysis (e.g. Epskamp, Rhemtulla,
-and Borsboom 2016), along with many others. The amount of pairing
-between methods that have generally been housed in separate camps will
-only increase into the future. This type of research will be facilitated
-by the general upsurge in the creation of open source software that
-gives users a general framework to test models. This was the motivation
-behind creating the \pkg{regsem} package in that users can estimate
-models ranging from simple factor analysis models, to latent
-longitudinal models with few to many time points, and finally to models
-with a large number of latent and observed variables. The use of
-regularization allows for the estimation of much larger structural
-equation models than before. Specifically, given that latent variables,
-as discussed in this article, are more commonly used in the social and
-behavioral sciences, sample sizes are generally not large. To estimate
-large models with sample sizes invites increasing amounts of bias, and
-as demonstrated with the simulated data in this paper, regularization
-can be used to reduce the complexity of the model, decreasing both the
+Specifically, beyond RegSEM, this has taken form of item response theory
+and regularization (Sun et al. 2016), pairing both structural equation
+models with decision trees (Brandmaier et al. 2013), exploratory
+psychological network analaysis (e.g. Epskamp, Rhemtulla, and Borsboom
+2016), along with many others. The amount of pairing between methods
+that have generally been housed in separate camps will only increase
+into the future. This type of research will be facilitated by the
+general upsurge in the creation of open source software that gives users
+a general framework to test models. This was the motivation behind
+creating the \pkg{regsem} package in that users can estimate models
+ranging from simple factor analysis models, to latent longitudinal
+models with few to many time points, and finally to models with a large
+number of latent and observed variables. The use of regularization
+allows for the estimation of much larger structural equation models than
+before. Specifically, given that latent variables, as discussed in this
+article, are more commonly used in the social and behavioral sciences,
+sample sizes are generally not large. To estimate large models with
+small sample sizes invites increasing amounts of bias, and as
+demonstrated with the simulated data in this paper. Regularization can
+be used to reduce the complexity of the model, thus decreasing both the
 bias and variance.
 
 With highly constrained structural equation models, achieving model
@@ -715,20 +767,20 @@ instance, with the latent change score model (McArdle and Hamagami
 2001), Bayesian regularization methods have less difficulty in reaching
 convergence across chains (Jacobucci and Grimm 2017). With the recent
 advent of additional sparsity inducing priors, along with new forms of
-software such as STAN (Carpenter et al. 2016), for some models it may be
+software such as Stan (Carpenter et al. 2016), for some models it may be
 more appropriate to use these Bayesian regularization methods over their
-frequentist counterparts. Particularly with structural equation models,
-although some research exists (Feng, Wu, and Song 2017), much more is
-warranted.
+frequentist counterparts. In the realm of Bayesian regularization for
+structural equation models, although some research exists (Feng, Wu, and
+Song 2017), much more is warranted.
 
 Future research with \pkg{regsem} should focus on a number of avenues.
 One is comparing the different forms of regularization, delineating
-which method may best best in which circumstances. Additionally, as
-structural equation models become larger, with the advent of much larger
-datasets, speed will become a principal concern. Although 40 penalties
-in the models tested above can be run in a matter of seconds on a
-standard laptop, larger models can take much longer. To handle this,
-future implementation with \pkg{regsem} will test the inclusion of
+which method may best best in which setting. Additionally, as structural
+equation models become larger, with the advent of much larger datasets,
+computational speed will become a principal concern. Although 40
+penalties in the models tested above can be run in a matter of seconds
+on a standard laptop, larger models can take much longer. To handle
+this, future implementation with \pkg{regsem} will test the inclusion of
 different types of optimization, specifically testing whether
 computation of the Hessian (or approximate Hessian) can reduce the
 number of optimization steps.
@@ -740,13 +792,17 @@ package as an implementation of regularized structural equation model.
 Because structural equation modeling encompasses a wide array of latent
 variable models, the \pkg{regsem} package was created as a general
 package for including different forms of regularization into a host of
-latent variable models. Future updates to \pkg{regsem} will focus on
-decreasing the computational time of large latent variable models in
-order to provide an avenue of testing for researchers collecting larger
-and larger datasets. RegSEM is a method that operates at all ends of the
-data size spectrum: allowing for a reduction in complexity when the
-sample size is small, along with dimension reduction in the presence of
-large data (both \(N\) and \(P\)).
+latent variable models. RegSEM, and thus the \pkg{regsem} package, has
+been evaluated in a wide array of SEM models, including confirmatory
+factor analysis (Jacobucci, Grimm, and McArdle 2016), latent change
+score models (Jacobucci and Grimm 2017), mediation models (Serang et al.
+2017).Future updates to \pkg{regsem} will focus on decreasing the
+computational time of large latent variable models in order to provide
+an avenue of testing for researchers collecting larger and larger
+datasets. RegSEM is a method that operates at all ends of the data size
+spectrum: allowing for a reduction in complexity when the sample size is
+small, along with dimension reduction in the presence of large data
+(both \(N\) and \(P\)).
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
@@ -767,6 +823,10 @@ Carpenter, Bob, Andrew Gelman, Matt Hoffman, Daniel Lee, Ben Goodrich,
 Michael Betancourt, Michael A Brubaker, Jiqiang Guo, Peter Li, and Allen
 Riddell. 2016. ``Stan: A Probabilistic Programming Language.''
 \emph{Journal of Statistical Software} 20.
+
+\hypertarget{ref-dahl2009xtable}{}
+Dahl, David B. 2009. ``Xtable: Export Tables to Latex or Html.'' \emph{R
+Package Version}, 1--5.
 
 \hypertarget{ref-donoho1995noising}{}
 Donoho, David L. 1995. ``De-Noising by Soft-Thresholding.'' \emph{IEEE
@@ -803,6 +863,10 @@ Holzinger, Karl John, and Frances Swineford. 1939. ``A Study in Factor
 Analysis: The Stability of a Bi-Factor Solution.'' \emph{Supplementary
 Educational Monographs}.
 
+\hypertarget{ref-jacobucci2016package}{}
+Jacobucci, Ross. 2017. ``Package 'Regsem'.''
+\emph{Https://Cran.r-Project.org/Web/Packages/Regsem/Index.html}.
+
 \hypertarget{ref-jacobucci2016regularized}{}
 Jacobucci, Ross, Kevin J Grimm, and John J McArdle. 2016. ``Regularized
 Structural Equation Modeling.'' \emph{Structural Equation Modeling: A
@@ -822,12 +886,6 @@ Marsh, Herbert W, and Kit-Tai Hau. 1996. ``Assessing Goodness of Fit: Is
 Parsimony Always Desirable?'' \emph{The Journal of Experimental
 Education} 64 (4). Taylor \& Francis: 364--90.
 
-\hypertarget{ref-McArdle_1984}{}
-McArdle, J. Jack, and Roderick P. McDonald. 1984. ``Some Algebraic
-Properties of the Reticular Action Model for Moment Structures.''
-\emph{British Journal of Mathematical and Statistical Psychology} 37
-(2). Wiley-Blackwell: 234--51.
-
 \hypertarget{ref-mcardle2005}{}
 McArdle, John J. 2005. ``The Development of the Ram Rules for Latent
 Variable Structural Equation Modeling.'' \emph{Contemporary
@@ -839,9 +897,23 @@ McArdle, John J, and Fumiaki Hamagami. 2001. ``Latent Difference Score
 Structural Models for Linear Dynamic Analyses with Incomplete
 Longitudinal Data.'' American Psychological Association.
 
+\hypertarget{ref-McArdle_1984}{}
+McArdle, John J., and Roderick P. McDonald. 1984. ``Some Algebraic
+Properties of the Reticular Action Model for Moment Structures.''
+\emph{British Journal of Mathematical and Statistical Psychology} 37
+(2). Wiley-Blackwell: 234--51.
+
 \hypertarget{ref-meinshausen2007relaxed}{}
 Meinshausen, Nicolai. 2007. ``Relaxed Lasso.'' \emph{Computational
 Statistics \& Data Analysis} 52 (1). Elsevier: 374--93.
+
+\hypertarget{ref-meredith1990latent}{}
+Meredith, William, and John Tisak. 1990. ``Latent Curve Analysis.''
+\emph{Psychometrika} 55 (1). Springer: 107--22.
+
+\hypertarget{ref-statspackage}{}
+R Core Team. 2017. \emph{R: A Language and Environment for Statistical
+Computing}. Vienna, Austria: R Foundation for Statistical Computing.
 
 \hypertarget{ref-raykov1999desirability}{}
 Raykov, Tenko, and George A Marcoulides. 1999. ``On Desirability of
@@ -857,6 +929,11 @@ Modeling.'' \emph{Journal of Statistical Software} 48 (2): 1--36.
 Schwarz, Gideon. 1978. ``Estimating the Dimension of a Model.''
 \emph{The Annals of Statistics} 6 (2). Institute of Mathematical
 Statistics: 461--64.
+
+\hypertarget{ref-serang2017xmed}{}
+Serang, Sarfaraz, Ross Jacobucci, Kim Brimhall, and Kevin J Grimm. 2017.
+``Exploratory Mediation Analysis via Regularization.'' \emph{Structural
+Equation Modeling: A Multidisciplinary Journal}. Taylor \& Francis.
 
 \hypertarget{ref-steiger1980}{}
 Steiger, James H, and John C Lind. 1980. ``Statistically Based Tests for
