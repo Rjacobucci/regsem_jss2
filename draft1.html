@@ -132,44 +132,40 @@ University of Notre Dame<br><a class="author_email" href="mailto:#"><a href="mai
 </address>
 <div class="abstract">
 <p class="abstract">Abstract</p>
-<p>The  package in , an implementation of Regularized Structural Equation Modeling <span class="citation">[@jacobucci2016regularized]</span>, was recently developed with the goal incorporating various forms of penalized likelihood estimation with a broad array of structural equations models. The forms of regularization include both the  <span class="citation">[@hoerl1970]</span> and the least absolute shrinkage and selection operator (; <span class="citation">[@Tibshirani1996]</span>, along with sparser extensions. The paper details both the algorithmic details and an overview of the use of  through both a factor analysis and latent growth curve models.</p>
+<p>The  package in , an implementation of regularized structural equation modeling <span class="citation">(RegSEM; Jacobucci, Grimm, and McArdle 2016)</span>, was recently developed with the goal incorporating various forms of penalized likelihood estimation with a broad array of structural equations models. The forms of regularization include both the  <span class="citation">(Hoerl and Kennard 1970)</span> and the least absolute shrinkage and selection operator <span class="citation">(; Tibshirani 1996)</span>, along with sparser extensions. RegSEM is particularly useful for structural equation models that have a small parameter to sample size ratio, as the addition of penalties can reduce the complexity, thus reducing the bias of the parameter estimates. The paper details the algorithmic details and an overview of the use of  with the application of both factor analysis and latent growth curve models.</p>
 </div>
 
 </div>
 
 
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
-</script>
+<p> </p>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>The desire for simplicity in model structure comes by many names, including simple structure <span class="citation">[@thurstone1937]</span>, variable complexity <span class="citation">[@browne2001]</span>, parsimony <span class="citation">[@raykov1999desirability; @marsh1996assessing]</span>, “sparse loadings” in the context of principal components analysis <span class="citation">[@zou2006sparse]</span>, and lastly, “sparsistency”, denoting that all parameters in a sparse model that are zero are correctly estimated as zero with probability tending to one <span class="citation">[@lam2009sparsistency]</span>. The goal is accurately and efficiently estimate a model that is parsimonious in allowing users to easily interpret the model’s representation of reality. In Figure 1, this would entail testing whether the cross-loadings are necessary to the fit of the model, or whether they can be pared away without an meaningful increase in bias.</p>
-<p>In the context of latent variables, reducing the complexity of models can come in many forms: selecting among multiple predictors of a latent variable, simplifying factor structure by removing cross-loadings, determining whether the addition of nonlinear terms are necessary in longitudinal models, and many others. As a simple running example, Figure 1 depicts a linear latent growth curve model with four time points and ten predictors for a simulated dataset.</p>
+<p>The desire for simplicity in model structure comes by many names, including simple structure <span class="citation">(Thurstone 1935)</span>, variable complexity <span class="citation">(Browne 2001)</span>, parsimony <span class="citation">(Raykov and Marcoulides 1999; Marsh and Hau 1996)</span>, “sparse loadings” in the context of principal components analysis <span class="citation">(Zou, Hastie, and Tibshirani 2006)</span>, and lastly, “sparsistency”, denoting that all parameters in a sparse model that are zero are correctly estimated as zero with probability tending to one <span class="citation">(Lam and Fan 2009)</span>. The goal is to accurately and efficiently estimate a model that is parsimonious in allowing users to easily interpret the model’s representation of reality. In the context of latent variables, reducing the complexity of models can come in many forms: selecting among multiple predictors of a latent variable, simplifying factor structure by removing cross-loadings, determining whether the addition of nonlinear terms are necessary in longitudinal models, and many others. As a simple running example, Figure 1 depicts a linear latent growth curve model <span class="citation">(e.g. Meredith and Tisak 1990)</span> with four time points and ten predictors for a simulated dataset.</p>
 
-<p>As an example, a researcher may want to test this model, but may only have a relatively small sample size (e.g. 80). However, there are 29 estimated parameters in this model, resulting in a estimated parameter to sample size ratio as far below even the most liberal recommendations (e.g. 10:1 parameters to sample size; <span class="citation">[@kline2015principles]</span>. In lieu of finding additional respondents, reducing the number of parameters estimated is one effective strategy. Specifically, the 20 estimated regressions from  could be reduced to a number that makes the number of parameters estimated to sample size ratio more reasonable.</p>
-<div id="regularization" class="section level2">
-<h2>Regularization</h2>
-<p>Although a whole host of methods exist to perform variable selection, the use of regularization has seen a wide array of application in the context of regression, and more recently, in areas such as graphical modeling, as well as a host of others. The two most common procedures for regularization in regression are the  () and the least absolute shrinkage and selection operator (; ); however, there are various alternative forms that can be seen as subsets or generalizations of these two procedures. Given an outcome vector  and predictor matrix <span class="math inline">\(X \in {R}^{n \times p}\)</span> , the ridge estimates are defined as</p>
-<p><span class="math display">\[
+<p>As an example, a researcher may want to test this model, but may only have a relatively small sample size (e.g. 80). However, there are 29 estimated parameters in this model, resulting in a estimated parameter to sample size ratio as far below even the most liberal recommendations <span class="citation">(e.g. 10:1 parameters to sample size; Kline 2015)</span>. In lieu of finding additional respondents, reducing the number of parameters estimated is one effective strategy for reducing bias. Specifically, the 20 estimated regressions from  could be reduced to a number that makes the ratio of the parameters estimated to sample size more reasonable. To explore this further, the next section provides an overview of regularization, and how different forms can be used to perform variable selection across a broad range of models.</p>
+</div>
+<div id="regularization" class="section level1">
+<h1>Regularization</h1>
+<p>Although a whole host of methods exist to perform variable selection, the use of regularization has seen a wide array of application in the context of regression, and more recently, in areas such as graphical modeling, as well as a host of others. The two most common procedures for regularization in regression are the  <span class="citation">(Hoerl and Kennard 1970)</span> and the least absolute shrinkage and selection operator <span class="citation">(; Tibshirani 1996)</span>; however, there are various alternative forms that can be seen as subsets or generalizations of these two procedures. Given an outcome vector  and predictor matrix <span class="math inline">\(X \in {R}^{n \times p}\)</span> , the ridge estimates are defined as</p>
+<p><span class="math display">\[\tag{1}
 \hat{\beta}^{ridge}= argmin \Big\{ \sum_{i=1}^{N} (y_{i} = \beta_{0} - \sum_{j=1}^{p}x_{ij} \beta_{j})^{2}  + \lambda \sum_{j=1}^{p} \beta_{j}^{2}\Big\},
-\]</span> where <span class="math inline">\(\beta_{0}\)</span> is the intercept, <span class="math inline">\(\beta_{j}\)</span> is the coefficient for <span class="math inline">\(x_{j}\)</span>, and <span class="math inline">\(\lambda\)</span> is the penalty that controls the amount of shrinkage. Note that when <span class="math inline">\(\lambda = 0\)</span>, equation 3 reduces to ordinary least squares regression. As <span class="math inline">\(\lambda\)</span> is increased, the <span class="math inline">\(\beta\)</span> parameters are shrunken towards zero. The lasso estimates are defined as</p>
-<p><span class="math display">\[
+\]</span> where <span class="math inline">\(\beta_{0}\)</span> is the intercept, <span class="math inline">\(\beta_{j}\)</span> is the coefficient for <span class="math inline">\(x_{j}\)</span>, and <span class="math inline">\(\lambda\)</span> is the penalty that controls the amount of shrinkage. Note that when <span class="math inline">\(\lambda = 0\)</span>, Equation 3 reduces to ordinary least squares regression. As <span class="math inline">\(\lambda\)</span> is increased, the <span class="math inline">\(\beta\)</span> parameters are shrunken towards zero. The lasso estimates are defined as</p>
+<p><span class="math display">\[\tag{2}
 \hat{\beta}^{lasso}= argmin \Big\{ \sum_{i=1}^{N} (y_{i} = \beta_{0} - \sum_{j=1}^{p}x_{ij} \beta_{j})^{2}  + \lambda \sum_{j=1}^{p}|\beta_{j}|\Big\}.
 \]</span></p>
 <p>In lasso regression, the <span class="math inline">\(l_{1}\)</span>-norm is used, instead of <span class="math inline">\(l_{2}\)</span>-norm as in ridge, which also shrinks the <span class="math inline">\(\beta\)</span> parameters, but additionally drives the parameters all the way to zero, thus performing a form of subset selection.</p>
-<p>In the context of our example depicted in Figure 1, to use lasso regression to select among the covariates, the growth model would need to be reduced to two factor scores, which neglects both the relationship between both the slope and intercept, reducing both to independent factor scores. Particularly in models with a greater number of latent variables, this becomes increasing problematic. A method that keeps the model structure, while allowing for a penalized estimation of specific parameters is regularized structural equation modeling (RegSEM; ). RegSEM adds a penalty function to the traditional maximum likelihood cost function for SEMs. The maximum likelihood cost function for SEMs can be written as</p>
-<p><span class="math display">\[
+<p>In the context of our example depicted in Figure 1, to use lasso regression to select among the covariates, the growth model would need to be reduced to two factor scores, which neglects both the relationship between both the slope and intercept, reducing both to independent factor scores. Particularly in models with a greater number of latent variables, this becomes increasingly problematic. A method that keeps the model structure, while allowing for penalized estimation of specific parameters is regularized structural equation modeling <span class="citation">(RegSEM; Jacobucci, Grimm, and McArdle 2016)</span>. RegSEM adds a penalty function to the traditional maximum likelihood estimation (MLE) for structural equation models (SEMs). The maximum likelihood cost function for SEMs can be written as</p>
+<p><span class="math display">\[\tag{3}
 F_{ML}=log(\left|\Sigma\right|)+tr(C*\Sigma^{-1})-log(\left|C\right|)- p.
 \]</span></p>
-<p>where <span class="math inline">\(\Sigma\)</span> is the model implied covariance matrix, <span class="math inline">\(C\)</span> is the observed covariance matrix, and <span class="math inline">\(p\)</span> is the number of estimated parameters. RegSem builds in an additional element to penalize certain model parameters yielding</p>
-<p><span class="math display">\[
+<p>where <span class="math inline">\(\Sigma\)</span> is the model implied covariance matrix, <span class="math inline">\(C\)</span> is the observed covariance matrix, and <span class="math inline">\(p\)</span> is the number of estimated parameters. RegSEM builds in an additional element to penalize certain model parameters yielding</p>
+<p><span class="math display">\[\tag{4}
 F_{regsem} = F_{ML} + \lambda P(\cdot)
 \]</span></p>
-<p>where <span class="math inline">\(\lambda\)</span> is the regularization parameter and takes on a value between zero and infinity. When <span class="math inline">\(\lambda\)</span> is zero, MLE is performed, and when <span class="math inline">\(\lambda\)</span> is infinity, all penalized parameters are shrunk to zero. <span class="math inline">\(P(\cdot)\)</span> is a general function for summing the values of one or more of the model’s parameter matrices. The two common forms of <span class="math inline">\(P(\cdot)\)</span> include both the Lasso (<span class="math inline">\(\| \cdot \|_{1}\)</span>), which penalizes the sum of the absolute values of the parameters, and Ridge (<span class="math inline">\(\| \cdot \|_{2}\)</span>), which penalizes the sum of the squared values of the parameters.</p>
+<p>where <span class="math inline">\(\lambda\)</span> is the regularization parameter and takes on a value between zero and infinity. When <span class="math inline">\(\lambda\)</span> is zero, MLE is performed, and when <span class="math inline">\(\lambda\)</span> is infinity, all penalized parameters are shrunk to zero. <span class="math inline">\(P(\cdot)\)</span> is a general function for summing the values of one or more of the model’s parameter matrices. The two common forms of <span class="math inline">\(P(\cdot)\)</span> include both the lasso (<span class="math inline">\(\| \cdot \|_{1}\)</span>), which penalizes the sum of the absolute values of the parameters, and ridge (<span class="math inline">\(\| \cdot \|_{2}\)</span>), which penalizes the sum of the squared values of the parameters.</p>
 <p>In our example, the twenty regression parameters from the covariates to both the intercept and slope would be penalized. Using lasso penalties, the absolute value of these twenty parameters would be summed and after being multiplied by the penalty <span class="math inline">\(\lambda\)</span>, added to equation 4, resulting in:</p>
-<p><span class="math display">\[
+<p><span class="math display">\[\tag{5}
 F_{lasso} = F_{ML} + \lambda * \left\|  \begin{matrix}  
 c1 \xrightarrow[]{} i\\
 c2\xrightarrow[]{}i\\
@@ -179,12 +175,299 @@ c1\xrightarrow[]{}s\\
 \vdots \\
 c10\xrightarrow[]{}s\\
 \end{matrix}  \right\|_{1}
+\]</span> Although the fit of the model is easily calculated given a set of parameter estimates, traditional optimization procedures for SEM cannot be used given the non-differentiable nature of lasso penalties, and as detailed later, sparse extensions.</p>
+<div id="optimization" class="section level2">
+<h2>Optimization</h2>
+<p>One method that has become popular for optimizing penalized likelihood method is that of proximal gradient descent <span class="citation">(e.g. p. 104 in Hastie, Tibshirani, and Wainwright 2015)</span>. In comparison to one-step procedures common in SEM optimization, that only involve a method for calculating the step size and the direction (typically using the gradient and an approximation of the Hessian), proximal gradient descent can be formulated as a two-step procedure. With a stepsize of <span class="math inline">\(s^{t}\)</span> and parameters <span class="math inline">\(\theta^{t}\)</span> at iteration :</p>
+
+where <span class="math inline">\(S_{s^{t} \lambda}(z)\)</span> is the soft-thresholding operator <span class="citation">(Donoho 1995)</span> used to overcome non-differentiability of the lasso penalty at the origin:
+<span class="math display">\[\begin{equation}
+S_{s^{t} \lambda}(z_{j}) = sign(z_{j})(|z_{j}|-s^{t} \lambda)_{+}
+\end{equation}\]</span>
+<p>where <span class="math inline">\((x)_{+}\)</span> is shorthand for max(x,0) and <span class="math inline">\(s^{t}\)</span> is the step size. Henceforth, <span class="math inline">\(\lambda\)</span> is assumed to encompass both the penalty and the step size <span class="math inline">\(s^{t}\)</span>. This procedure is only used to update parameters that are subject to penalty. Non-penalized parameters are updated only using step 1 from above.</p>
+<p>In contrast to only updating one parameter at a time in a coordinate-wise fashion, for RegSEM the optimization steps can be divided by both the  and  matrices. This block-wise gradient descent manifests itself as:</p>
+
+
+<p>where step 13 is the calculation of the implied covariance matrix using RAM matrices and step 14 calculates the fit of the model with penalizing parameters in the  matrix. Note that parameters from the  matrix can also be penalized, however, this is much less common. This algorithm can be described as first order proximal block coordinate descent. For some SEM models, using block updates has been found to work better than standard gradient descent with the same soft thresholding of penalized parameters.</p>
+</div>
+</div>
+<div id="types-of-penalties" class="section level1">
+<h1>Types of Penalties</h1>
+<p>Outside of both ridge and lasso penalties, a whole host of additional forms of regularization exist.</p>
+<div id="elastic-net" class="section level2">
+<h2>Elastic Net</h2>
+<p>Most notably, the elastic net <span class="citation">(Zou and Hastie 2005)</span> encompasses both the ridge and lasso, reaching a compromise between both through the addition of an additional parameter <span class="math inline">\(\alpha\)</span>, manifesting itself as</p>
+<p><span class="math display">\[
+P_{enet}(\theta_{j}) = 0.5(1-\alpha)\| \theta_{j} \|_{2} + \alpha\| \theta_{j} \|_{2}
 \]</span></p>
-<p>Although the fit of the model is easily calculated given a set of parameter estimates, traditional optimization procedures for SEM cannot be used given the non-differentiable nature of lasso penalties, and as detailed later, extensions. # R code</p>
-<p>Can be inserted in regular R markdown blocks.</p>
-<pre class="r"><code>x &lt;- 1:10
-x</code></pre>
-<pre><code>##  [1]  1  2  3  4  5  6  7  8  9 10</code></pre>
+<p>with a soft-thresholding update of <span class="math display">\[
+S(\theta_{j})= 
+\begin{cases}
+0,&amp;  |\theta_{j}| &lt; \alpha\lambda\\
+\frac{sgn(\theta_{j})(|\theta_{j}|-\alpha\lambda)}{1+(1-\alpha)\lambda},              &amp; |\theta_{j}|\geq\alpha\lambda
+\end{cases}
+\]</span></p>
+<p>When <span class="math inline">\(\alpha\)</span> is zero, ridge is performed, and conversely when <span class="math inline">\(\alpha\)</span> is 1, lasso regularization is performed. This method harnesses the benefits of both methods, particularly when variable selection is warranted (lasso), but there may be collinearity between the variables (ridge).</p>
+</div>
+<div id="adaptive-lasso" class="section level2">
+<h2>Adaptive Lasso</h2>
+<p>In using lasso penalties, difficulties emerge when the scale of variables differ dramatically. By only using one value of <span class="math inline">\(\lambda\)</span>, this can add appreciable bias to the resulting estimates <span class="citation">(e.g. Fan and Li 2001)</span>. One method proposed for overcoming this limitation is the adaptive lasso <span class="citation">(Zou 2006)</span>. Instead of penalizing parameters directly, each parameter is scaled by the un-penalized estimated (MLE parameter estimates in SEM). The adaptive lasso results in: <span class="math display">\[
+F_{alasso} = F_{ML} + \lambda \| \theta_{ML}^{-1} * \theta_{pen} \|_{1}
+\]</span> with, following the same form for the lasso, the soft-thresholding update is:</p>
+<p><span class="math display">\[
+S(\theta_{j})= sign(\theta_{j})(|\theta_{j}|-\frac{\lambda}{2|\theta_{j}|})_{+}
+\]</span> In this, larger penalties are given for non-significant (smaller) parameters, limiting the bias in estimating larger, significant parameters. Note that one limitation of this approach for SEM models is that the model needs to be estimable with MLE. Particularly for models with large numbers of variables, in relation to sample size, this may not be possible.</p>
+</div>
+<div id="smoothly-clipped-absolute-deviation-penalty" class="section level2">
+<h2>Smoothly Clipped Absolute Deviation Penalty</h2>
+
+<p>Two additional penalties that overcome some of the deficiencies of the lasso, producing sparser solutions, include the smoothly clipped absolute deviation penalty <span class="citation">(SCAD; Fan and Li 2001)</span> and the minimax concave penalty <span class="citation">(MCP; Zhang 2010)</span>. In comparison to the lasso, both the SCAD and MCP have much smaller penalties for large parameters, where the amount of penalty for small penalties is similar to the lasso, as is evident in Figure 2.</p>
+<p>The SCAD takes the form of:</p>
+<p><span class="math display">\[
+pen_{\lambda,\gamma}(\theta_{j}) = \lambda \big\{I(\theta_{j}\leq\lambda) + \frac{(\gamma \lambda-0)_{+}}{(\gamma-1)\lambda}I(\theta_{j}&gt;\lambda)\big\}
+\]</span></p>
+<p>with a soft-thresholding update of <span class="math display">\[
+S(\theta_{j})= 
+\begin{cases}
+S(\theta_{j},\lambda),&amp;  |\theta_{j}| \geq 2\lambda\\
+\frac{\gamma-1}{\gamma-2}S(\theta_{j},\frac{\lambda\gamma}{\gamma-1}),              &amp; 2\lambda &lt; |\theta_{j}|\leq\alpha\lambda\\
+\theta_{j} &amp; |\theta_{j}| &gt; \lambda \gamma
+\end{cases}
+\]</span></p>
+<p>for <span class="math inline">\(\gamma &gt; 2\)</span>. As the the penalty in equation 11 is non-convex (as is the MCP), this makes the computation more difficult. However, in the context of SEM this can be seen as less problematic, as equation 3 is also non-convex.</p>
+</div>
+<div id="minimax-concave-penalty" class="section level2">
+<h2>Minimax Concave Penalty</h2>
+<p><span class="citation">Zhang (2010)</span> proposed the minimax concave penalty:</p>
+<p><span class="math display">\[
+pen_{\lambda,\gamma}(\theta_{j}) = \lambda\bigg(|\theta_{j}|-\frac{\theta_{j}^{2}}{2\lambda\gamma}\bigg)I(|\theta_{j}|&lt;\lambda\gamma) +\frac{\lambda^{2}\gamma}{2}I(|\theta_{j}|\geq \lambda\gamma)
+\]</span></p>
+<p>with a soft-thresholding update of <span class="math display">\[
+S(\theta_{j})= 
+\begin{cases}
+\frac{\gamma}{\gamma-1}S(\theta_{j},\lambda),&amp;  |\theta_{j}| \leq \lambda\gamma\\
+\theta_{j} &amp; |\theta_{j}| &gt; \lambda \gamma
+\end{cases}
+\]</span></p>
+<p>for <span class="math inline">\(\gamma &gt; 0\)</span>. As seen in Figure 2, this results in similar amount of shrinkage for smaller estimates in comparison to the SCAD, however, less for larger estimates. For both the SCAD and MCP, both the <span class="math inline">\(\gamma\)</span> and <span class="math inline">\(\lambda\)</span> parameters are used as hyper-parameters. This involves testing models over a two-dimensional array of parameters, however, <span class="math inline">\(\gamma\)</span> can be fixed to 3.7 per <span class="citation">Fan and Li (2001)</span>.</p>
+</div>
+</div>
+<div id="implementation" class="section level1">
+<h1>Implementation</h1>
+<p>RegSEM is implemented as the  package <span class="citation">(Jacobucci 2017)</span> in the  statistical environment <span class="citation">(R Core Team 2017)</span>. To estimate the maximum likelihood fit of the model,  uses  <span class="citation">(RAM; J. J. McArdle and McDonald 1984, <span class="citation">McArdle (2005)</span>)</span> notation to derive an implied covariance matrix. The parameters of each SEM are translated into three matrices: the  (), the  (; directed paths; e.g. factor loadings or regressions), and the  (; undirected paths; e.g. covariances or variances). See <span class="citation">Jacobucci, Grimm, and McArdle (2016)</span> for more detail on RAM notation.</p>
+<p>Syntax for using the  is based on the  package <span class="citation">(Rosseel 2012)</span> for structural equation models.  is a general SEM software program that can fit a wide array of models with various estimation methods. To use , the user has to first fit the model in . Note that particularly in cases that the number of variables is larger than the sample size, the model in lavaan does not need to converge, let alone run. In this case, the  argument in lavaan can be used. ###maybe move previous sentences### Below is the code for a one factor model fit in lavaan with the <span class="citation">Holzinger and Swineford (1939)</span> dataset.</p>
+<pre class="r"><code>library(lavaan)
+mod &lt;- &quot;
+f1 = ~ NA*x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9
+f1~~1*f1
+&quot;
+out &lt;- cfa(mod,HolzingerSwineford1939)</code></pre>
+<p>After a model is run in lavaan, using  or any of the wrapper functions for fitting a model (i.e. , , or ), the object is then used by the regsem package to translate the model into RAM notation and run using one of three functions: , , or . The  function runs a model with one penalty value, whereas  does the same but allows for the use of random starting values. However, the main function is  as this not only runs the model, but runs it across a vector of varying penalty values. For instance in the above one-factor model, each of the factor loadings can be tested with lasso penalties to determine whether each indicator is a necessary component of the latent factor:</p>
+<pre class="r"><code>library(regsem)
+extractMatrices(out)[&quot;A&quot;]
+out.reg &lt;- cv_regsem(out, type=&quot;lasso&quot;, 
+                    pars_pen=c(1:9),n.lambda=15,jump=.05)</code></pre>
+<p>In this, the function  allows the user to examine at how the lavaan model is translated into RAM matrices. Further, by looking at the  matrix, the parameter numbers corresponding to the factor loadings of interest for regularization can be identified. For this model, the factor loadings represent parameter numbers one through nine, of which we pass directly to the  argument of the  function (if  then all directed effects, outside of intercepts, are penalized). Additionally, we pass the arguments of how many values of penalty we want to test (), how much the penalty should increase for each model (), and finally that lasso estimation is used ().</p>
+<p>The  object contains two components,  has the parameter estimates for each of the 15 models,</p>
+<pre class="r"><code>head(round(out.reg[[1]],2),5)</code></pre>
+<pre><code>##      f1 -&gt; x1 f1 -&gt; x2 f1 -&gt; x3 f1 -&gt; x4 f1 -&gt; x5 f1 -&gt; x6 f1 -&gt; x7
+## [1,]     0.51     0.26     0.25     0.98     1.08     0.92     0.20
+## [2,]     0.41     0.17     0.17     0.89     0.98     0.83     0.12
+## [3,]     0.33     0.10     0.10     0.83     0.91     0.77     0.06
+## [4,]     0.27     0.04     0.04     0.78     0.87     0.72     0.01
+## [5,]     0.21     0.00     0.00     0.75     0.83     0.69     0.00
+##      f1 -&gt; x8 f1 -&gt; x9 x1 ~~ x1 x2 ~~ x2 x3 ~~ x3 x4 ~~ x4 x5 ~~ x5
+## [1,]     0.20     0.31     1.10     1.31     1.21     0.38     0.49
+## [2,]     0.13     0.23     1.11     1.32     1.22     0.38     0.48
+## [3,]     0.08     0.17     1.13     1.33     1.23     0.38     0.47
+## [4,]     0.03     0.12     1.15     1.35     1.25     0.38     0.46
+## [5,]     0.00     0.07     1.18     1.36     1.26     0.39     0.46
+##      x6 ~~ x6 x7 ~~ x7 x8 ~~ x8 x9 ~~ x9
+## [1,]     0.36     1.15     0.98     0.92
+## [2,]     0.36     1.15     0.99     0.93
+## [3,]     0.36     1.16     1.00     0.94
+## [4,]     0.37     1.17     1.01     0.96
+## [5,]     0.38     1.18     1.02     0.97</code></pre>
+<p>while  looks like:</p>
+<pre class="r"><code>round(out.reg[[2]],2)</code></pre>
+<pre><code>##       lambda conv rmsea     BIC
+##  [1,]   0.00    0  0.19 7805.18
+##  [2,]   0.05    0  0.19 7815.39
+##  [3,]   0.10    0  0.20 7840.59
+##  [4,]   0.15    0  0.21 7875.84
+##  [5,]   0.20    0  0.20 7886.15
+##  [6,]   0.25    0  0.21 7911.82
+##  [7,]   0.30    0  0.21 7934.45
+##  [8,]   0.35    0  0.22 7960.67
+##  [9,]   0.40    0  0.23 7991.03
+## [10,]   0.45    0  0.23 8009.42
+## [11,]   0.50    0  0.23 8034.81
+## [12,]   0.55    0  0.24 8069.49
+## [13,]   0.60    0  0.29 8360.54
+## [14,]   0.65    0  0.29 8360.53
+## [15,]   0.70    0  0.29 8360.52</code></pre>
+<p>In this, the user can examine the penalty (lambda), whether the model converged (“conv”=0), and the fit of each model. By default, two fit indices are output, both the root mean square error of approximation <span class="citation">(RMSEA; Steiger and Lind 1980)</span>, and the Bayesian information criteria <span class="citation">(BIC; Schwarz 1978)</span>. Both the RMSEA and BIC take into account the degrees of freedom of the model, an important point for model selection in the presence of lasso penalties (and other penalties that set parameters to zero). Based on work done on degrees of freedom for lasso regression, as <span class="citation">Zou, Hastie, and Tibshirani (2007)</span> proved that the number of nonzero coefficients is an unbiased estimate of the degrees of freedom for regression. As the penalty increases, select parameter are set to zero, thus the degrees of freedom increases, which for fit indices that include the degrees of freedom in the calculation, means that although the likelihood of the model may only get worse (increase), both the RMSEA and BIC can improve (decrease) due to the impact of increased degrees of freedom.</p>
+<p>Instead of examining the  output matrix of parameter estimates, users also have the option to plot the trajectory of each of the penalized parameters. This is accomplished with , resulting in:</p>
+<pre class="r"><code>plot_cv(out.reg,pars=1:9)</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
+<p>After a final model (penalty) is chosen, users have the option either just use the output from , or the final model can be re-run with either  or  to attain additional information. In the model above, the best fitting penalty, according to the BIC, is <span class="math inline">\(\lambda=0\)</span>. However, for demonstration purposes, we can choose a penalty of 0.2. With this, the model is re-run with </p>
+<pre class="r"><code>mod.out &lt;- regsem(out, type=&quot;lasso&quot;, pars_pen=c(1:9),lambda=0.2)
+#summary(mod.out)</code></pre>
+<p>Note that the arguments used above correspond to the same arguments in . However,  has additional optional arguments corresponding to the number or random starts to try. Additional fit indices can be attained through the  function.</p>
+<pre class="r"><code>fit_indices(mod.out)</code></pre>
+<pre><code>## $Data_Type
+## [1] &quot;Train&quot;
+## 
+## $fits
+##           Fmin         varFit              p          chisq        p.chisq 
+##        0.69087        0.00000        9.00000      415.90286        0.00000 
+##           nfac             df           npar              N baseline.chisq 
+##        1.00000       31.00000       14.00000      301.00000      918.85159 
+##    baseline.df           logl            ncp          rmsea    rmsea.lower 
+##       36.00000    -3903.04360        1.28301        0.20344        0.18598 
+##    rmsea.upper     rmsea.pval            CFI            TLI            BIC 
+##             NA        0.00000        0.56402        0.49370     7885.98674 
+##            AIC           CAIC         EBIC.5        EBIC.25 
+##     7834.08719     7983.11043     8051.12157     8017.06459</code></pre>
+<p>These same fit measures can be accessed through , through changing the defaults with the  argument. Finally, instead of assessing these fit indices on the same sample that the models were run on, a holdout dataset could be used. This can be done two ways: either with  or with  and specifying the name of the holdout covariance matrix.</p>
+</div>
+<div id="comparison" class="section level1">
+<h1>Comparison</h1>
+<p>To compare the different types of penalties in , we return to the the initial example of the latent growth curve model displayed in Figure 1. Using the same simulated data, the model can be run in  as</p>
+<pre class="r"><code>mod1 &lt;- &quot;
+i =~ 1*x1 + 1*x2 + 1*x3 + 1*x4
+s =~ 0*x1 + 1*x2 + 2*x3 + 3*x4
+i ~ c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10
+s ~ c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9 + c10
+&quot;
+lav.growth &lt;- growth(mod1,dat,fixed.x=T)</code></pre>
+<p>To compare different types of penalties in , it requires a different specification of the  argument. The options currently include maximum likelihood (), ridge (), lasso (), adaptive lasso (), elastic net (), SCAD (), and MCP (). For the elastic net, there is an additional hyperparameter, <span class="math inline">\(\alpha\)</span> that controls the tradeoff between ridge and lasso penalties. This is specified as  , which has a default of 0.5. Additionally, both the SCAD and MCP have the additional hyper parameter of <span class="math inline">\(\gamma\)</span>, which is specified as  and defaults to 3.7 per <span class="citation">Fan and Li (2001)</span>.</p>
+<p>For the purposes of comparison, each of the 20 covariate regressions were penalized using the lasso, adaptive lasso, SCAD, and MCP, and compared to the maximum likelihood estimates. In this model, the data were simulated to have two large effects (both  parameters), two small effects (both  parameters) and sixteen true zero effects ( parameters). Note that the covariates were simulated to have zero covariance among each variable. If there was substantial collinearity among covariates, the elastic net would be more appropriate to simultaneously select predictors while also accounting for the collinearity. The parameter estimates corresponding the the best fit of the BIC are has the fit of each model, resulting in Table 1, created using the  package <span class="citation">(Dahl 2009)</span>.</p>
+
+<p>While every regularization method erroneously set both simulated true intercept effects as zero (as in maximum likelihood, which accounts for these errors), both the adaptive lasso and SCAD correctly identified every true zero effect. The lasso identified two false effects while the MCP mistakenly identified one. Additionally, the lasso estimation of the true effects was attentuated in comparison to the other regularization methods. This is in line with previous research <span class="citation">(Fan and Li 2001)</span>, necessitating the use of a two-step relaxed lasso method <span class="citation">(Meinshausen 2007, see <span class="citation">Jacobucci, Grimm, and McArdle (2016)</span>)</span> As expected given the small ratio between number of estimated parameters and sample size, maximum likelihood mistakenly identified 3 false effects as significant.</p>
+<p>To compare the performance of each penalization method further, particularly in the presence of small number of parameters to sample size ratios, a small scale simulation study was conducted. The same model and effects was kept, but the sample size was varied to include 80, 200, and 1000 to demonstrate how maximum likelihood estimation of effects improves as sample size increases, while each of the regularization methods performs well regardless of sample size. Each run was replicated 200 times. For each regularization method, the BIC was used to choose a final model among the 40 penalty vales. The results are displayed in Table 2.</p>
+
+<p>For false positive, the adaptive lasso demonstrated the best performance, where the performance of maximum likelihood estimation leveled off at the 0.05 level at a sample size of 1000 as expected. For false negatives, lasso penalties demonstrated similar results to maximum likelihood. This was expected given the tendency of the lasso to under-penalize small coefficients in comparison to the other regularization methods. The adaptive lasso and SCAD demonstrated slightly worse results, however, outside of the MCP, each method made either zero or near zero errors at a sample size of 1000. The poor performance of the MCP may be in part due to fixing the <span class="math inline">\(\gamma\)</span> penalty to 3.7. Varying this parameter may improve the performance of the method. In summary, the regularization methods demonstrated an improvement over maximum likelihood, particularly at small samples, for a model that had a large number of estimated parameters.</p>
+</div>
+<div id="discussion" class="section level1">
+<h1>Discussion</h1>
+<p>This paper provides an introduction to the  package, outlining the mathematical details of the regularized structural equation modeling <span class="citation">(RegSEM; Jacobucci, Grimm, and McArdle 2016)</span> method and the usage of the  package. RegSEM allows the use of regularization while keeping the structural equation model intact, adding penalization directly into the estimation of the model. The application of RegSEM was detailed using two example models: a latent growth curve model with 20 predictors of both the latent intercept and slope, along with a factor analysis with one latent factor. With the latent growth curve model, the small parameter to sample size ratio resulted in a larger number of false positives in using maximum likelihood estimation. In both the simulated example and the small simulation, the different types of regularization in  demonstrated better false positive and negative rates in comparison to maxiumum likelihood across sample sizes.</p>
+<p>Broadly speaking, there is a growing amount of research into the integration between data mining methods and latent variable models. Specifically, beyond RegSEM, this has taken the form of item response theory and regularization <span class="citation">(Sun et al. 2016)</span>, pairing both structural equation models with decision trees <span class="citation">(Brandmaier et al. 2013)</span>, exploratory psychological network analaysis <span class="citation">(e.g. Epskamp, Rhemtulla, and Borsboom 2016)</span>, along with many others. The amount of pairing between methods that have generally been housed in separate camps will only increase into the future. This type of research will be facilitated by the general upsurge in the creation of open source software that gives users a general framework to test models. This was the motivation behind creating the  package in that users can estimate models ranging from simple factor analysis models, to latent longitudinal models with few to many time points, and finally to models with a large number of latent and observed variables. The use of regularization allows for the estimation of much larger structural equation models than before. Specifically, given that latent variables, as discussed in this article, are more commonly used in the social and behavioral sciences, sample sizes are generally not large. To estimate large models with small sample sizes invites increasing amounts of bias, and as demonstrated with the simulated data in this paper. Regularization can be used to reduce the complexity of the model, thus decreasing both the bias and variance.</p>
+<p>With highly constrained structural equation models, achieving model convergence can be particularly problematic in using . For instance, with the latent change score model <span class="citation">(McArdle and Hamagami 2001)</span>, Bayesian regularization methods have less difficulty in reaching convergence across chains (Jacobucci and Grimm 2017). With the recent advent of additional sparsity inducing priors, along with new forms of software such as Stan <span class="citation">(Carpenter et al. 2016)</span>, for some models it may be more appropriate to use these Bayesian regularization methods over their frequentist counterparts. In the realm of Bayesian regularization for structural equation models, although some research exists <span class="citation">(Feng, Wu, and Song 2017)</span>, much more is warranted.</p>
+<p>Future research with  should focus on a number of avenues. One is comparing the different forms of regularization, delineating which method may be best in which setting. Additionally, as structural equation models become larger, with the advent of much larger datasets, computational speed will become a principal concern. Although 40 penalties in the models tested above can be run in a matter of seconds on a standard laptop, larger models can take much longer. To handle this, future implementation with  will test the inclusion of different types of optimization, specifically testing whether computation of the Hessian (or approximate Hessian) can reduce the number of optimization steps.</p>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>This paper provided a brief overview on the use of the  package as an implementation of regularized structural equation model. Because structural equation modeling encompasses a wide array of latent variable models, the  package was created as a general package for including different forms of regularization into a host of latent variable models. RegSEM, and thus the  package, has been evaluated in a wide array of SEM models, including confirmatory factor analysis <span class="citation">(Jacobucci, Grimm, and McArdle 2016)</span>, latent change score models (Jacobucci and Grimm 2017), mediation models <span class="citation">(Serang et al. 2017)</span>. Future updates to  will focus on decreasing the computational time of large latent variable models in order to provide an avenue of testing for researchers collecting larger and larger datasets. RegSEM is a method that operates at all ends of the data size spectrum: allowing for a reduction in complexity when the sample size is small, along with dimension reduction in the presence of large data (both <span class="math inline">\(N\)</span> and <span class="math inline">\(P\)</span>).</p>
+</div>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-brandmaier2013">
+<p>Brandmaier, Andreas M., Timo von Oertzen, John J. McArdle, and Ulman Lindenberger. 2013. “Structural Equation Model Trees.” <em>Psychological Methods</em> 18 (1): 71–86.</p>
+</div>
+<div id="ref-browne2001">
+<p>Browne, Michael W. 2001. “An Overview of Analytic Rotation in Exploratory Factor Analysis.” <em>Multivariate Behavioral Research</em> 36 (1). Taylor &amp; Francis: 111–50.</p>
+</div>
+<div id="ref-carpenter2016stan">
+<p>Carpenter, Bob, Andrew Gelman, Matt Hoffman, Daniel Lee, Ben Goodrich, Michael Betancourt, Michael A Brubaker, Jiqiang Guo, Peter Li, and Allen Riddell. 2016. “Stan: A Probabilistic Programming Language.” <em>Journal of Statistical Software</em> 20.</p>
+</div>
+<div id="ref-dahl2009xtable">
+<p>Dahl, David B. 2009. “Xtable: Export Tables to Latex or Html.” <em>R Package Version</em>, 1–5.</p>
+</div>
+<div id="ref-donoho1995noising">
+<p>Donoho, David L. 1995. “De-Noising by Soft-Thresholding.” <em>IEEE Transactions on Information Theory</em> 41 (3). IEEE: 613–27.</p>
+</div>
+<div id="ref-epskamp2016generalized">
+<p>Epskamp, Sacha, Mijke Rhemtulla, and Denny Borsboom. 2016. “Generalized Network Psychometrics: Combining Network and Latent Variable Models.” <em>ArXiv Preprint ArXiv:1605.09288</em>.</p>
+</div>
+<div id="ref-fan2001variable">
+<p>Fan, Jianqing, and Runze Li. 2001. “Variable Selection via Nonconcave Penalized Likelihood and Its Oracle Properties.” <em>Journal of the American Statistical Association</em> 96 (456). Taylor &amp; Francis: 1348–60.</p>
+</div>
+<div id="ref-feng2017bayesian">
+<p>Feng, Xiang-Nan, Hao-Tian Wu, and Xin-Yuan Song. 2017. “Bayesian Regularized Multivariate Generalized Latent Variable Models.” <em>Structural Equation Modeling: A Multidisciplinary Journal</em>. Taylor &amp; Francis, 1–18.</p>
+</div>
+<div id="ref-hastie2015statistical">
+<p>Hastie, Trevor, Robert Tibshirani, and Martin Wainwright. 2015. <em>Statistical Learning with Sparsity: The Lasso and Generalizations</em>. CRC Press.</p>
+</div>
+<div id="ref-hoerl1970">
+<p>Hoerl, Arthur E, and Robert W Kennard. 1970. “Ridge Regression: Biased Estimation for Nonorthogonal Problems.” <em>Technometrics</em> 12 (1). Taylor &amp; Francis Group: 55–67.</p>
+</div>
+<div id="ref-holzinger1939study">
+<p>Holzinger, Karl John, and Frances Swineford. 1939. “A Study in Factor Analysis: The Stability of a Bi-Factor Solution.” <em>Supplementary Educational Monographs</em>.</p>
+</div>
+<div id="ref-jacobucci2016package">
+<p>Jacobucci, Ross. 2017. “Package ’Regsem’.” <em>Https://Cran.r-Project.org/Web/Packages/Regsem/Index.html</em>.</p>
+</div>
+<div id="ref-jacobucci2016regularized">
+<p>Jacobucci, Ross, Kevin J Grimm, and John J McArdle. 2016. “Regularized Structural Equation Modeling.” <em>Structural Equation Modeling: A Multidisciplinary Journal</em> 23 (4). Taylor &amp; Francis: 555–66.</p>
+</div>
+<div id="ref-kline2015principles">
+<p>Kline, Rex B. 2015. <em>Principles and Practice of Structural Equation Modeling</em>. Guilford publications.</p>
+</div>
+<div id="ref-lam2009sparsistency">
+<p>Lam, Clifford, and Jianqing Fan. 2009. “Sparsistency and Rates of Convergence in Large Covariance Matrix Estimation.” <em>Annals of Statistics</em> 37 (6B). NIH Public Access: 4254.</p>
+</div>
+<div id="ref-marsh1996assessing">
+<p>Marsh, Herbert W, and Kit-Tai Hau. 1996. “Assessing Goodness of Fit: Is Parsimony Always Desirable?” <em>The Journal of Experimental Education</em> 64 (4). Taylor &amp; Francis: 364–90.</p>
+</div>
+<div id="ref-mcardle2005">
+<p>McArdle, John J. 2005. “The Development of the Ram Rules for Latent Variable Structural Equation Modeling.” <em>Contemporary Psychometrics: A Festschrift for Roderick P. McDonald</em>. Erlbaum. Mahwah, NJ, 225–73.</p>
+</div>
+<div id="ref-mcardle2001latent">
+<p>McArdle, John J, and Fumiaki Hamagami. 2001. “Latent Difference Score Structural Models for Linear Dynamic Analyses with Incomplete Longitudinal Data.” American Psychological Association.</p>
+</div>
+<div id="ref-McArdle_1984">
+<p>McArdle, John J., and Roderick P. McDonald. 1984. “Some Algebraic Properties of the Reticular Action Model for Moment Structures.” <em>British Journal of Mathematical and Statistical Psychology</em> 37 (2). Wiley-Blackwell: 234–51.</p>
+</div>
+<div id="ref-meinshausen2007relaxed">
+<p>Meinshausen, Nicolai. 2007. “Relaxed Lasso.” <em>Computational Statistics &amp; Data Analysis</em> 52 (1). Elsevier: 374–93.</p>
+</div>
+<div id="ref-meredith1990latent">
+<p>Meredith, William, and John Tisak. 1990. “Latent Curve Analysis.” <em>Psychometrika</em> 55 (1). Springer: 107–22.</p>
+</div>
+<div id="ref-statspackage">
+<p>R Core Team. 2017. <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing.</p>
+</div>
+<div id="ref-raykov1999desirability">
+<p>Raykov, Tenko, and George A Marcoulides. 1999. “On Desirability of Parsimony in Structural Equation Model Selection.” <em>Structural Equation Modeling: A Multidisciplinary Journal</em> 6 (3). Taylor &amp; Francis: 292–300.</p>
+</div>
+<div id="ref-rosseel2012">
+<p>Rosseel, Yves. 2012. “Lavaan: An R Package for Structural Equation Modeling.” <em>Journal of Statistical Software</em> 48 (2): 1–36.</p>
+</div>
+<div id="ref-schwarz1978estimating">
+<p>Schwarz, Gideon. 1978. “Estimating the Dimension of a Model.” <em>The Annals of Statistics</em> 6 (2). Institute of Mathematical Statistics: 461–64.</p>
+</div>
+<div id="ref-serang2017xmed">
+<p>Serang, Sarfaraz, Ross Jacobucci, Kim Brimhall, and Kevin J Grimm. 2017. “Exploratory Mediation Analysis via Regularization.” <em>Structural Equation Modeling: A Multidisciplinary Journal</em>. Taylor &amp; Francis.</p>
+</div>
+<div id="ref-steiger1980">
+<p>Steiger, James H, and John C Lind. 1980. “Statistically Based Tests for the Number of Common Factors.” In <em>Annual Meeting of the Psychometric Society, Iowa City, Ia</em>. Vol. 758.</p>
+</div>
+<div id="ref-sun2016latent">
+<p>Sun, Jianan, Yunxiao Chen, Jingchen Liu, Zhiliang Ying, and Tao Xin. 2016. “Latent Variable Selection for Multidimensional Item Response Theory Models via L_ <span class="math inline">\(\{\)</span>1<span class="math inline">\(\}\)</span> Regularization.” <em>Psychometrika</em> 81 (4). Springer: 921–39.</p>
+</div>
+<div id="ref-thurstone1937">
+<p>Thurstone, L. L. 1935. <em>The Vectors of Mind</em>. Chicago, IL: University of Chicago Press.</p>
+</div>
+<div id="ref-Tibshirani1996">
+<p>Tibshirani, Robert. 1996. “Regression Shrinkage and Selection via the Lasso.” <em>Journal of the Royal Statistical Society. Series B (Methodological)</em> 58 (1). Wiley for the Royal Statistical Society: 267–88.</p>
+</div>
+<div id="ref-zhang2010nearly">
+<p>Zhang, Cun-Hui. 2010. “Nearly Unbiased Variable Selection Under Minimax Concave Penalty.” <em>The Annals of Statistics</em> 38 (2). Institute of Mathematical Statistics: 894–942.</p>
+</div>
+<div id="ref-zou2006adaptive">
+<p>Zou, Hui. 2006. “The Adaptive Lasso and Its Oracle Properties.” <em>Journal of the American Statistical Association</em> 101 (476). Taylor &amp; Francis: 1418–29.</p>
+</div>
+<div id="ref-zou2005regularization">
+<p>Zou, Hui, and Trevor Hastie. 2005. “Regularization and Variable Selection via the Elastic Net.” <em>Journal of the Royal Statistical Society: Series B (Statistical Methodology)</em> 67 (2). Wiley Online Library: 301–20.</p>
+</div>
+<div id="ref-zou2006sparse">
+<p>Zou, Hui, Trevor Hastie, and Robert Tibshirani. 2006. “Sparse Principal Component Analysis.” <em>Journal of Computational and Graphical Statistics</em> 15 (2). Taylor &amp; Francis: 265–86.</p>
+</div>
+<div id="ref-Zou2007">
+<p>———. 2007. “On the Degrees of Freedom of the Lasso.” <em>The Annals of Statistics</em> 35 (5). Institute of Mathematical Statistics: 2173–92. doi:<a href="https://doi.org/10.1214/009053607000000127">10.1214/009053607000000127</a>.</p>
+</div>
 </div>
 </div>
 

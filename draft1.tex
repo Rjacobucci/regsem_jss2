@@ -63,8 +63,8 @@ including simple structure (Thurstone 1935), variable complexity (Browne
 (Zou, Hastie, and Tibshirani 2006), and lastly, ``sparsistency'',
 denoting that all parameters in a sparse model that are zero are
 correctly estimated as zero with probability tending to one (Lam and Fan
-2009). The goal is accurately and efficiently estimate a model that is
-parsimonious in allowing users to easily interpret the model's
+2009). The goal is to accurately and efficiently estimate a model that
+is parsimonious in allowing users to easily interpret the model's
 representation of reality. In the context of latent variables, reducing
 the complexity of models can come in many forms: selecting among
 multiple predictors of a latent variable, simplifying factor structure
@@ -88,8 +88,8 @@ to sample size ratio as far below even the most liberal recommendations
 additional respondents, reducing the number of parameters estimated is
 one effective strategy for reducing bias. Specifically, the 20 estimated
 regressions from \textit{c1-c10} could be reduced to a number that makes
-the number of parameters estimated to sample size ratio more reasonable.
-To explore this further, the next section provides an overview of
+the ratio of the parameters estimated to sample size more reasonable. To
+explore this further, the next section provides an overview of
 regularization, and how different forms can be used to perform variable
 selection across a broad range of models.
 
@@ -213,7 +213,7 @@ S_{s^{t} \lambda}(z_{j}) = sign(z_{j})(|z_{j}|-s^{t} \lambda)_{+}
 \noindent
 where \((x)_{+}\) is shorthand for max(x,0) and \(s^{t}\) is the step
 size. Henceforth, \(\lambda\) is assumed to encompass both the penalty
-and the step size \(s^{t}\). This procedure is only used to updated
+and the step size \(s^{t}\). This procedure is only used to update
 parameters that are subject to penalty. Non-penalized parameters are
 updated only using step 1 from above.
 
@@ -351,7 +351,7 @@ S(\theta_{j},\lambda),&  |\theta_{j}| \geq 2\lambda\\
 
 \noindent
 for \(\gamma > 2\). As the the penalty in equation 11 is non-convex (as
-is the MCP), this makes computation more difficult. However, in the
+is the MCP), this makes the computation more difficult. However, in the
 context of SEM this can be seen as less problematic, as equation 3 is
 also non-convex.
 
@@ -398,8 +398,12 @@ Syntax for using the \pkg{regsem} is based on the \pkg{lavaan} package
 (Rosseel 2012) for structural equation models. \pkg{lavaan} is a general
 SEM software program that can fit a wide array of models with various
 estimation methods. To use \pkg{regsem}, the user has to first fit the
-model in \pkg{lavaan}. As an example, below is the code for a one factor
-model fit in lavaan with the Holzinger and Swineford (1939) dataset.
+model in \pkg{lavaan}. Note that particularly in cases that the number
+of variables is larger than the sample size, the model in lavaan does
+not need to converge, let alone run. In this case, the
+\code{do.fit=FALSE} argument in lavaan can be used. \#\#\#maybe move
+previous sentences\#\#\# Below is the code for a one factor model fit in
+lavaan with the Holzinger and Swineford (1939) dataset.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -693,12 +697,12 @@ displayed in Table 2.
   \hline
  & N & ML & lasso & alasso & SCAD & MCP \\ 
   \hline
-1 & 80.00 & 0.08 & 0.08 & \textbf{0.04} & 0.05 & \textbf{0.04} \\ 
-  2 & 200.00 & 0.06 & 0.05 & \textbf{0.02} & 0.03 & 0.03 \\ 
-  3 & 1000.00 & 0.05 & 0.08 & \textbf{0.01} & \textbf{0.01} & 0.28 \\ 
-  4 & 80.00 & 0.33 & \textbf{0.31} & 0.35 & 0.35 & 0.45 \\ 
-  5 & 200.00 & \textbf{0.19} & \textbf{0.19} & 0.23 & 0.26 & 0.45 \\ 
-  6 & 1000.00 & \textbf{0.00} & \textbf{0.00} & \textbf{0.00} & 0.01 & 0.14 \\ 
+ & 80.00 & 0.08 & 0.08 & \textbf{0.04} & 0.05 & \textbf{0.20} \\ 
+  False Positives & 200.00 & 0.06 & 0.05 & \textbf{0.02} & 0.03 & 0.06 \\ 
+   & 1000.00 & 0.05 & 0.08 & \textbf{0.01} & \textbf{0.01} & 0.02 \\ 
+   & 80.00 & 0.33 & \textbf{0.31} & 0.35 & 0.35 & 0.31 \\ 
+  False Negatives & 200.00 & \textbf{0.19} & \textbf{0.19} & 0.23 & 0.26 & 0.27 \\ 
+   & 1000.00 & \textbf{0.00} & \textbf{0.00} & \textbf{0.00} & 0.01 & 0.03 \\ 
    \hline
 \end{tabular}
     \caption{Results from the simulation using the model in Figure 1. Each condition was replicated 200 times. False positives represent concluding that the simulated regressions of zero were concluded as nonzero. False negatives are concluding that either the simulated regression values of 1 or 0.2 are in fact zero. Bolded values represent the smallest error per condition.}
@@ -739,27 +743,27 @@ maxiumum likelihood across sample sizes.
 
 Broadly speaking, there is a growing amount of research into the
 integration between data mining methods and latent variable models.
-Specifically, beyond RegSEM, this has taken form of item response theory
-and regularization (Sun et al. 2016), pairing both structural equation
-models with decision trees (Brandmaier et al. 2013), exploratory
-psychological network analaysis (e.g. Epskamp, Rhemtulla, and Borsboom
-2016), along with many others. The amount of pairing between methods
-that have generally been housed in separate camps will only increase
-into the future. This type of research will be facilitated by the
-general upsurge in the creation of open source software that gives users
-a general framework to test models. This was the motivation behind
-creating the \pkg{regsem} package in that users can estimate models
-ranging from simple factor analysis models, to latent longitudinal
-models with few to many time points, and finally to models with a large
-number of latent and observed variables. The use of regularization
-allows for the estimation of much larger structural equation models than
-before. Specifically, given that latent variables, as discussed in this
-article, are more commonly used in the social and behavioral sciences,
-sample sizes are generally not large. To estimate large models with
-small sample sizes invites increasing amounts of bias, and as
-demonstrated with the simulated data in this paper. Regularization can
-be used to reduce the complexity of the model, thus decreasing both the
-bias and variance.
+Specifically, beyond RegSEM, this has taken the form of item response
+theory and regularization (Sun et al. 2016), pairing both structural
+equation models with decision trees (Brandmaier et al. 2013),
+exploratory psychological network analaysis (e.g. Epskamp, Rhemtulla,
+and Borsboom 2016), along with many others. The amount of pairing
+between methods that have generally been housed in separate camps will
+only increase into the future. This type of research will be facilitated
+by the general upsurge in the creation of open source software that
+gives users a general framework to test models. This was the motivation
+behind creating the \pkg{regsem} package in that users can estimate
+models ranging from simple factor analysis models, to latent
+longitudinal models with few to many time points, and finally to models
+with a large number of latent and observed variables. The use of
+regularization allows for the estimation of much larger structural
+equation models than before. Specifically, given that latent variables,
+as discussed in this article, are more commonly used in the social and
+behavioral sciences, sample sizes are generally not large. To estimate
+large models with small sample sizes invites increasing amounts of bias,
+and as demonstrated with the simulated data in this paper.
+Regularization can be used to reduce the complexity of the model, thus
+decreasing both the bias and variance.
 
 With highly constrained structural equation models, achieving model
 convergence can be particularly problematic in using \pkg{regsem}. For
@@ -775,7 +779,7 @@ Song 2017), much more is warranted.
 
 Future research with \pkg{regsem} should focus on a number of avenues.
 One is comparing the different forms of regularization, delineating
-which method may best best in which setting. Additionally, as structural
+which method may be best in which setting. Additionally, as structural
 equation models become larger, with the advent of much larger datasets,
 computational speed will become a principal concern. Although 40
 penalties in the models tested above can be run in a matter of seconds
@@ -796,7 +800,7 @@ latent variable models. RegSEM, and thus the \pkg{regsem} package, has
 been evaluated in a wide array of SEM models, including confirmatory
 factor analysis (Jacobucci, Grimm, and McArdle 2016), latent change
 score models (Jacobucci and Grimm 2017), mediation models (Serang et al.
-2017).Future updates to \pkg{regsem} will focus on decreasing the
+2017). Future updates to \pkg{regsem} will focus on decreasing the
 computational time of large latent variable models in order to provide
 an avenue of testing for researchers collecting larger and larger
 datasets. RegSEM is a method that operates at all ends of the data size
