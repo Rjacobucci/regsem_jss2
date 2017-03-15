@@ -1,0 +1,13 @@
+\BOOKMARK [1][-]{Section.0.Introduction.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{Section.1.Regularization.1}{Regularization}{}% 2
+\BOOKMARK [2][-]{Subsection.2.0.Optimization.2}{Optimization}{Section.1.Regularization.1}% 3
+\BOOKMARK [1][-]{Section.2.Types of Penalties.1}{Types of Penalties}{}% 4
+\BOOKMARK [2][-]{Subsection.3.0.Elastic Net.2}{Elastic Net}{Section.2.Types of Penalties.1}% 5
+\BOOKMARK [2][-]{Subsection.3.1.Adaptive Lasso.2}{Adaptive Lasso}{Section.2.Types of Penalties.1}% 6
+\BOOKMARK [2][-]{Subsection.3.2.Smoothly Clipped Absolute Deviation Penalty.2}{Smoothly Clipped Absolute Deviation Penalty}{Section.2.Types of Penalties.1}% 7
+\BOOKMARK [2][-]{Subsection.3.3.Minimax Concave Penalty.2}{Minimax Concave Penalty}{Section.2.Types of Penalties.1}% 8
+\BOOKMARK [1][-]{Section.3.Implementation.1}{Implementation}{}% 9
+\BOOKMARK [1][-]{Section.4.Comparison.1}{Comparison}{}% 10
+\BOOKMARK [1][-]{Section.5.Discussion.1}{Discussion}{}% 11
+\BOOKMARK [2][-]{Subsection.6.0.Conclusion.2}{Conclusion}{Section.5.Discussion.1}% 12
+\BOOKMARK [1][-]{subsection.6.1}{References}{}% 13
