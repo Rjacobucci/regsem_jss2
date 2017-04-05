@@ -1,0 +1,8 @@
+\BOOKMARK [0][-]{section*.1}{true}{}% 1
+\BOOKMARK [1][-]{section.2.1}{Introduction}{section*.1}% 2
+\BOOKMARK [1][-]{section.2.2}{Regularization}{section*.1}% 3
+\BOOKMARK [2][-]{subsection.2.2.1}{Optimization}{section.2.2}% 4
+\BOOKMARK [1][-]{section.2.3}{Types of Penalties}{section*.1}% 5
+\BOOKMARK [2][-]{subsection.2.3.1}{Elastic Net}{section.2.3}% 6
+\BOOKMARK [2][-]{subsection.2.3.2}{Adaptive Lasso}{section.2.3}% 7
+\BOOKMARK [2][-]{subsection.2.3.3}{Sparse Extensionse}{section.2.3}% 8

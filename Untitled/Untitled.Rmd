@@ -1,0 +1,51 @@
+---
+title: Capitalized Title Here
+author:
+  - name: Author One
+    affiliation: Affiliation
+    address:
+    - line 1
+    - line 2
+    email:  author1@work
+  - name: Author Two
+    affiliation: Affiliation
+    address:
+    - line 1
+    - line 2
+    email:  author2@work
+abstract: >
+   The \pkg{regsem} package in R, an implementation of regularized structural equation modeling [RegSEM; @jacobucci2016regularized], was recently developed with the goal of incorporating various forms of penalized likelihood estimation in a broad array of structural equations models. The forms of regularization include both the \textit{ridge} [@hoerl1970] and the least absolute shrinkage and selection operator [\textit{lasso}; @Tibshirani1996], along with sparser extensions. RegSEM is particularly useful for structural equation models that have a small parameter to sample size ratio, as the addition of penalties can reduce the complexity, thus reducing the bias of the parameter estimates. The paper covers the algorithmic details and an overview of the use of \pkg{regsem} with the application of both factor analysis and latent growth curve models.
+preamble: >
+  % Any extra latex you need in the preamble
+output: rticles::rjournal_article
+---
+
+## Introduction
+
+Introductory section which may include references in parentheses
+\citep{R}, or cite a reference such as \citet{R} in the text.
+
+## Section title in sentence case
+
+This section may contain a figure such as Figure \ref{figure:rlogo}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics{Rlogo}
+  \caption{The logo of R.}
+  \label{figure:rlogo}
+\end{figure}
+
+## Another section
+
+There will likely be several sections, perhaps including code snippets, such as:
+
+```{r}
+x <- 1:10
+x
+```
+
+## Summary
+
+This file is only a basic article template. For full details of _The R Journal_ style and information on how to prepare your article for submission, see the [Instructions for Authors](https://journal.r-project.org/share/author-guide.pdf).
+\bibliography{RJreferences}
